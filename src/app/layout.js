@@ -2,6 +2,7 @@
 import './globals.css'
 import { AppProvider } from '../context/AppContext'
 import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
 
 export const metadata = {
   title: "DevDoc's",
@@ -15,6 +16,7 @@ export default function RootLayout({ children }) {
         <AppProvider>
           <Navbar />
           <main className="max-w-6xl mx-auto px-4 py-10">{children}</main>
+          <Footer />
         </AppProvider>
       </body>
     </html>

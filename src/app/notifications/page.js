@@ -1,25 +1,24 @@
-// src/app/notifications/page.js
 'use client'
 import { useApp } from '../../context/AppContext'
+import NotificationItem from '../../components/NotificationItem'
 
 export default function NotificationsPage() {
   const { notifications, markAllNotificationsRead } = useApp()
   return (
-    <section>
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Notifications</h1>
-        <button className="btn bg-gray-600" onClick={markAllNotificationsRead}>Mark all as read</button>
+    <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Notifications</h1>
+        <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700" onClick={markAllNotificationsRead}>Mark all as read</button>
       </div>
 
-      <div className="space-y-3">
-        {notifications.map(n => (
-          <div key={n.id} className={`card ${n.read ? '' : 'border-l-4 border-indigo-600'}`}>
-            <div className="flex items-center justify-between">
-              <div>{n.text}</div>
-              <div className="text-xs text-slate-500">{new Date(n.createdAt).toLocaleDateString()}</div>
-            </div>
+      <div className="space-y-4">
+        {notifications.length > 0 ? (
+          notifications.map(n => <NotificationItem key={n.id} notification={n} />)
+        ) : (
+          <div className="text-center py-16">
+            <p className="text-lg text-gray-500 dark:text-gray-400">You have no new notifications.</p>
           </div>
-        ))}
+        )}
       </div>
     </section>
   )

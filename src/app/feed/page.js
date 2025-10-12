@@ -1,20 +1,29 @@
-// src/app/feed/page.js
 'use client'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useApp } from '../../context/AppContext'
-import BlogCard from '../../components/BlogCard'
+import BlogGrid from '../../components/BlogGrid'
+import BlogList from '../../components/BlogList'
+import ViewToggle from '../../components/ViewToggle'
 
 export default function FeedPage() {
   const { blogs, following } = useApp()
+  const [viewMode, setViewMode] = useState('grid')
 
   const feedBlogs = useMemo(() => blogs.filter(b => following.includes(b.authorId)), [blogs, following])
 
   return (
-    <section>
-      <h1 className="text-2xl font-bold mb-4">Your Feed</h1>
-      <div className="space-y-4">
-        {feedBlogs.length ? feedBlogs.map(b => <BlogCard key={b.id} blog={b} />) : <div className="card">No posts from authors you follow yet.</div>}
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Your Feed</h1>
+        <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
       </div>
+      {feedBlogs.length > 0 ? (
+        viewMode === 'grid' ? <BlogGrid blogs={feedBlogs} /> : <BlogList blogs={feedBlogs} />
+      ) : (
+        <div className="text-center py-16">
+          <p className="text-lg text-gray-500 dark:text-gray-400">No posts from authors you follow yet.</p>
+        </div>
+      )}
     </section>
   )
 }
