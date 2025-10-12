@@ -1,85 +1,88 @@
 'use client'
-import DashboardStats from '../../components/DashboardStats'
+import { useState } from 'react'
 import { useApp } from '../../context/AppContext'
 import UserList from '../../components/UserList'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-
-
-const data = [
-  {
-    name: 'Page A',
-    uv: 4000,
-    pv: 2400,
-    amt: 2400,
-  },
-  {
-    name: 'Page B',
-    uv: 3000,
-    pv: 1398,
-    amt: 2210,
-  },
-  {
-    name: 'Page C',
-    uv: 2000,
-    pv: 9800,
-    amt: 2290,
-  },
-  {
-    name: 'Page D',
-    uv: 2780,
-    pv: 3908,
-    amt: 2000,
-  },
-  {
-    name: 'Page E',
-    uv: 1890,
-    pv: 4800,
-    amt: 2181,
-  },
-  {
-    name: 'Page F',
-    uv: 2390,
-    pv: 3800,
-    amt: 2500,
-  },
-  {
-    name: 'Page G',
-    uv: 3490,
-    pv: 4300,
-    amt: 2100,
-  },
-];
+import BlogManager from '../../components/BlogManager'
+import AnalyticsDashboard from '../../components/AnalyticsDashboard'
+import Settings from '../../components/Settings'
+import { Shield, Users, FileText, Settings as SettingsIcon } from 'lucide-react'
 
 export default function AdminPage() {
-  const { users } = useApp()
+  const { users, blogs, currentUser } = useApp()
+  const [activeTab, setActiveTab] = useState('dashboard')
 
-  return (
-    <section className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-8">Admin Dashboard</h1>
-
-      <DashboardStats />
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-white dark:bg-neutral-900 rounded-lg shadow p-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Site Analytics</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="pv" fill="#8884d8" />
-              <Bar dataKey="uv" fill="#82ca9d" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="bg-white dark:bg-neutral-900 rounded-lg shadow p-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">User Management</h2>
-          <UserList users={users} />
+  if (!currentUser?.isAdmin) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold">Access Denied</h1>
+          <p className="mt-4">You do not have permission to view this page.</p>
         </div>
       </div>
-    </section>
+    )
+  }
+
+  const tabs = [
+    { id: 'dashboard', name: 'Dashboard', icon: <AnalyticsDashboard /> },
+    { id: 'users', name: 'Users', icon: <Users /> },
+    { id: 'blogs', name: 'Blogs', icon: <FileText /> },
+    { id: 'settings', name: 'Settings', icon: <SettingsIcon /> },
+  ]
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return <AnalyticsDashboard />
+      case 'users':
+        return <UserList users={users} />
+      case 'blogs':
+        return <BlogManager blogs={blogs} />
+      case 'settings':
+        return <Settings />
+      default:
+        return null
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-100 dark:bg-neutral-950">
+      <header className="bg-white dark:bg-neutral-900 shadow-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
+            <Shield className="mr-3" />
+            Admin Control Center
+          </h1>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex space-x-8">
+          <aside className="w-1/4">
+            <div className="bg-white dark:bg-neutral-900 rounded-lg shadow p-6">
+              <nav className="space-y-1">
+                {tabs.map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`w-full flex items-center px-4 py-2 text-left text-lg font-medium rounded-md transition-colors ${
+                      activeTab === tab.id
+                        ? 'bg-indigo-500 text-white'
+                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neutral-800'
+                    }`}
+                  >
+                    <span className="mr-3">{tab.icon}</span>
+                    {tab.name}
+                  </button>
+                ))}
+              </nav>
+            </div>
+          </aside>
+
+          <div className="w-3/4">
+            {renderContent()}
+          </div>
+        </div>
+      </main>
+    </div>
   )
 }
