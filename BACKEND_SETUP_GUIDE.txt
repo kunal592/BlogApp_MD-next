@@ -1,0 +1,26 @@
+# BACKEND SETUP GUIDE for DevDoc's
+
+This document explains how to connect the Next.js frontend to the Express + Prisma backend.
+
+1) Environment variables (.env.local)
+NEXT_PUBLIC_API_URL=http://localhost:5003/api
+NEXT_PUBLIC_CLIENT_URL=http://localhost:3000
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id
+
+2) Enable Axios API Calls
+Uncomment and update src/lib/axios.js to point to NEXT_PUBLIC_API_URL and enable withCredentials if needed.
+
+3) Auth
+Implement OAuth or JWT endpoints on backend. Frontend expects /auth/google and /auth/session endpoints.
+
+4) Routes mapping (frontend -> backend)
+GET /api/blogs -> GET /blogs
+GET /api/blogs/:id -> GET /blogs/:id
+POST /api/blogs/:id/comments -> POST /blogs/:id/comments
+POST /api/contact -> POST /contact
+
+5) CORS
+Allow origin from NEXT_PUBLIC_CLIENT_URL and enable credentials if using cookies.
+
+6) Deployment
+Set NEXT_PUBLIC_API_URL to your production backend URL and ensure HTTPS.

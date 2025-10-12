@@ -1,0 +1,90 @@
+# -----------------------------------------------------
+# 🧱 Node / Next.js / Tailwind Fullstack .gitignore
+# -----------------------------------------------------
+
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+.pnpm-debug.log*
+
+# Environment variables
+.env
+.env.*.local
+.env.local
+.env.production
+.env.development
+
+# Local build output
+.next/
+out/
+dist/
+build/
+
+# Tailwind and PostCSS cache
+.postcss-cache/
+tailwind.config.cjs
+tailwind.config.ts
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor & system files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# OS junk files
+*.tmp
+*.temp
+
+# Mac system
+.AppleDouble
+.LSOverride
+
+# Test coverage
+coverage/
+*.lcov
+
+# Optional lockfiles (if you prefer committing manually)
+# yarn.lock
+# package-lock.json
+# pnpm-lock.yaml
+
+# Local data / caches
+.cache/
+.next/cache/
+.vercel/
+.vercel_build_output/
+firebase-debug.log
+firebase-debug.*
+firebase.json
+.firebaserc
+
+# Misc
+*.pid
+*.seed
+*.pid.lock
+*.tsbuildinfo
+
+# Uploads / public assets generated at runtime
+public/uploads/
+public/temp/
+
+# Prisma
+prisma/dev.db
+prisma/migrations/
+
+# -----------------------------------------------------
+# ✅ Safe for: Next.js, Tailwind, Prisma, Express
+# -----------------------------------------------------
