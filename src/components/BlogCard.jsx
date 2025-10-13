@@ -1,41 +1,49 @@
 'use client'
 import Link from 'next/link'
 import { useApp } from '../context/AppContext'
-import { ThumbsUp, MessageCircle } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 
-export default function BlogCard({ blog }) {
-  const { users } = useApp()
-  const author = users.find(u => u.id === blog.authorId) || { name: 'Unknown' }
+export default function BlogCard({ blog, showAuthor = true }) {
+  const { users, currentUser, deleteBlog } = useApp()
+  const author = users.find(u => u.id === blog.authorId)
+
+  const isAuthor = currentUser && currentUser.id === blog.authorId
+
+  const handleDelete = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (window.confirm('Are you sure you want to delete this blog post?')) {
+      deleteBlog(blog.id);
+    }
+  }
+
   return (
-    <article className="bg-white dark:bg-neutral-900 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-      <div className="p-6">
-        <div className="flex items-center mb-4">
-          <img className="w-10 h-10 rounded-full mr-4" src={author.avatar} alt={author.name} />
-          <div>
-            <p className="font-semibold text-gray-900 dark:text-white">{author.name}</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{new Date(blog.createdAt).toLocaleDateString()}</p>
-          </div>
-        </div>
-        <h3 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
-          <Link href={`/blog/${blog.id}`}>{blog.title}</Link>
-        </h3>
-        <p className="text-gray-700 dark:text-gray-300 mb-4">{blog.excerpt}</p>
-        <div className="flex items-center justify-between text-gray-500 dark:text-gray-400">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1">
-              <ThumbsUp size={18} />
-              <span>{blog.likes}</span>
+    <div className="bg-white dark:bg-neutral-800 shadow-lg rounded-lg overflow-hidden transition-transform hover:scale-105 relative">
+      {isAuthor && (
+        <button 
+          onClick={handleDelete}
+          className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 z-10"
+          aria-label="Delete blog post"
+        >
+          <Trash2 size={18} />
+        </button>
+      )}
+      <Link href={`/blog/${blog.id}`} className="block">
+        <img className="w-full h-48 object-cover" src={blog.image} alt={blog.title} />
+        <div className="p-6">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 truncate">{blog.title}</h3>
+          <p className="text-gray-700 dark:text-gray-300 mb-4 h-12 overflow-hidden text-ellipsis">{blog.excerpt}</p>
+          {showAuthor && author && (
+            <div className="flex items-center">
+              <img className="w-10 h-10 rounded-full mr-4" src={author.avatar} alt={author.name} />
+              <div>
+                <p className="text-gray-900 dark:text-white font-semibold">{author.name}</p>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">{new Date(blog.createdAt).toLocaleDateString()}</p>
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              <MessageCircle size={18} />
-              <span>{blog.comments}</span>
-            </div>
-          </div>
-          <Link href={`/blog/${blog.id}`} className="font-semibold text-indigo-600 hover:text-indigo-700">
-            Read more &rarr;
-          </Link>
+          )}
         </div>
-      </div>
-    </article>
-  )
+      </Link>
+    </div>
+  );
 }

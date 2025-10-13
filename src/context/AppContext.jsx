@@ -1,4 +1,3 @@
-// src/context/AppContext.jsx
 'use client'
 import React, { createContext, useContext, useState, useMemo } from 'react'
 import { blogs as mockBlogs, users as mockUsers, comments as mockComments, notifications as mockNotes } from '../lib/mockData'
@@ -39,9 +38,34 @@ export function AppProvider({ children }) {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })))
   }
 
+  function addReply(commentId, text) {
+    const newReply = { id: 'r' + Date.now(), authorId: currentUser.id, content: text, createdAt: new Date().toISOString() };
+    setComments(prev => prev.map(c => {
+      if (c.id === commentId) {
+        return { ...c, replies: [newReply, ...(c.replies || [])] };
+      }
+      return c;
+    }));
+  }
+
+  function likeComment(commentId) {
+    setComments(prev => prev.map(c => {
+      if (c.id === commentId) {
+        return { ...c, likes: (c.likes || 0) + 1 };
+      }
+      return c;
+    }));
+  }
+
+  function deleteBlog(blogId) {
+    setBlogs(prev => prev.filter(b => b.id !== blogId));
+    setComments(prev => prev.filter(c => c.blogId !== blogId));
+  }
+
   const value = useMemo(() => ({
     blogs, users, comments, notifications, currentUser, bookmarks, following,
-    toggleLike, toggleBookmark, addComment, toggleFollow, markAllNotificationsRead, setBlogs
+    toggleLike, toggleBookmark, addComment, toggleFollow, markAllNotificationsRead, setBlogs,
+    addReply, likeComment, deleteBlog
   }), [blogs, users, comments, notifications, currentUser, bookmarks, following])
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

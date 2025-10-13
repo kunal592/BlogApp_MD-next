@@ -2,13 +2,16 @@
 import { useState, useMemo } from 'react'
 import { useApp } from '../context/AppContext'
 import BlogGrid from '../components/BlogGrid'
+import BlogList from '../components/BlogList'
 import Sidebar from '../components/Sidebar'
 import SearchBar from '../components/SearchBar'
+import { LayoutGrid, List } from 'lucide-react'
 
 export default function HomePage() {
   const { blogs } = useApp()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedTag, setSelectedTag] = useState(null)
+  const [viewMode, setViewMode] = useState('grid') // 'grid' or 'list'
 
   const allTags = useMemo(() => [...new Set(blogs.flatMap(b => b.tags))], [blogs])
 
@@ -47,18 +50,33 @@ export default function HomePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
         <main className="lg:col-span-3">
-          {selectedTag && (
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Filtered by: <span className="text-indigo-600">{selectedTag}</span></h2>
-              <button 
-                onClick={() => setSelectedTag(null)}
-                className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
-              >
-                Clear Filter
+          <div className="flex justify-between items-center mb-6">
+            {selectedTag ? (
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Filtered by: <span className="text-indigo-600">{selectedTag}</span></h2>
+                    <button 
+                        onClick={() => setSelectedTag(null)}
+                        className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
+                    >
+                        Clear Filter
+                    </button>
+                </div>
+            ) : <div />}
+            <div className="flex items-center space-x-2">
+              <button onClick={() => setViewMode('grid')} className={`p-2 rounded-md ${viewMode === 'grid' ? 'bg-indigo-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-800'}`}>
+                <LayoutGrid size={20} />
+              </button>
+              <button onClick={() => setViewMode('list')} className={`p-2 rounded-md ${viewMode === 'list' ? 'bg-indigo-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-800'}`}>
+                <List size={20} />
               </button>
             </div>
+          </div>
+          
+          {viewMode === 'grid' ? (
+            <BlogGrid blogs={filteredBlogs} />
+          ) : (
+            <BlogList blogs={filteredBlogs} />
           )}
-          <BlogGrid blogs={filteredBlogs} />
         </main>
 
         <aside className="lg:col-span-1">
