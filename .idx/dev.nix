@@ -23,4 +23,5 @@
       };
     };
   };
+  services.postgres.enable = true;
 }

@@ -18,6 +18,8 @@ model User {
   emailVerified DateTime?
   image         String?
   bio           String?   @db.Text
+  followersCount Int      @default(0)
+  followingCount Int      @default(0)
   accounts      Account[]
   sessions      Session[]
   blogs         Blog[]
@@ -129,11 +131,11 @@ model Follow {
   id          String   @id @default(cuid())
   createdAt   DateTime @default(now())
   followerId  String
-  followingId String
+  followeeId  String
   follower    User     @relation(name: "follower", fields: [followerId], references: [id], onDelete: Cascade)
-  following   User     @relation(name: "following", fields: [followingId], references: [id], onDelete: Cascade)
+  following   User     @relation(name: "following", fields: [followeeId], references: [id], onDelete: Cascade)
 
-  @@unique([followerId, followingId])
+  @@unique([followerId, followeeId])
 }
 
 model Notification {

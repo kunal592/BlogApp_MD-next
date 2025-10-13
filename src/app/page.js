@@ -15,10 +15,13 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (blogs.length > 0) {
+    // Simulate fetching blogs
+    setTimeout(() => {
+      // In a real app, you would fetch blogs from an API here
+      // For now, we'll just use the initial empty array of blogs
       setLoading(false)
-    }
-  }, [blogs])
+    }, 1000) // Simulate a 1-second loading time
+  }, [])
 
   const allTags = useMemo(() => [...new Set(blogs.flatMap(b => b.tags))], [blogs])
 
@@ -83,7 +86,9 @@ export default function HomePage() {
             </div>
           </div>
           
-          {viewMode === 'grid' ? (
+          {filteredBlogs.length === 0 ? (
+            <div className="text-center py-20 text-gray-500 dark:text-gray-400">No blogs found.</div>
+          ) : viewMode === 'grid' ? (
             <BlogGrid blogs={filteredBlogs} />
           ) : (
             <BlogList blogs={filteredBlogs} />
