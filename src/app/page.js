@@ -1,5 +1,5 @@
 'use client'
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { useApp } from '../context/AppContext'
 import BlogGrid from '../components/BlogGrid'
 import BlogList from '../components/BlogList'
@@ -8,20 +8,10 @@ import SearchBar from '../components/SearchBar'
 import { LayoutGrid, List } from 'lucide-react'
 
 export default function HomePage() {
-  const { blogs, setBlogs } = useApp()
+  const { blogs, loading } = useApp()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedTag, setSelectedTag] = useState(null)
   const [viewMode, setViewMode] = useState('grid') // 'grid' or 'list'
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    // Simulate fetching blogs
-    setTimeout(() => {
-      // In a real app, you would fetch blogs from an API here
-      // For now, we'll just use the initial empty array of blogs
-      setLoading(false)
-    }, 1000) // Simulate a 1-second loading time
-  }, [])
 
   const allTags = useMemo(() => [...new Set(blogs.flatMap(b => b.tags))], [blogs])
 

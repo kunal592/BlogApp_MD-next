@@ -11,6 +11,7 @@ export function AppProvider({ children }) {
   const [notifications, setNotifications] = useState([])
   const [bookmarks, setBookmarks] = useState([])
   const [following, setFollowing] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     // Fetch initial data
@@ -24,6 +25,8 @@ export function AppProvider({ children }) {
         setUsers(usersRes.data)
       } catch (error) {
         console.error("Error fetching initial data:", error)
+      } finally {
+        setLoading(false)
       }
     }
     fetchData()
@@ -109,11 +112,11 @@ export function AppProvider({ children }) {
   }
 
   const value = useMemo(() => ({
-    blogs, users, comments, notifications, bookmarks, following,
+    blogs, users, comments, notifications, bookmarks, following, loading,
     fetchComments, toggleLike, toggleBookmark, addComment, toggleFollow, 
     markAllNotificationsRead, addReply, likeComment, deleteBlog, 
     updateUserProfile, updateBlog, setBlogs, signup
-  }), [blogs, users, comments, notifications, bookmarks, following])
+  }), [blogs, users, comments, notifications, bookmarks, following, loading])
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }
