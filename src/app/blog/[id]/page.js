@@ -24,6 +24,8 @@ export default function BlogDetailPage({ params }) {
   const [author, setAuthor] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showSummary, setShowSummary] = useState(false)
+  const [summary, setSummary] = useState('')
+  const [isSummarizing, setIsSummarizing] = useState(false)
   const [blogUrl, setBlogUrl] = useState('')
 
   useEffect(() => {
@@ -45,11 +47,26 @@ export default function BlogDetailPage({ params }) {
     fetchBlog()
   }, [params.id])
 
+  const handleSummarize = async () => {
+    setShowSummary(true)
+    if (summary) return
+
+    setIsSummarizing(true)
+    try {
+      const res = await api.post('/summarize', { content: blog.content })
+      setSummary(res.data.summary)
+    } catch (error) {
+      console.error("Error summarizing blog:", error)
+      setSummary('Failed to generate summary.')
+    } finally {
+      setIsSummarizing(false)
+    }
+  }
+
   if (loading) return <div className="text-center py-16">Loading...</div>
   if (!blog) return <div className="text-center py-16">Blog not found</div>
 
   const readingTime = calculateReadingTime(blog.content)
-  const dummySummary = `${blog.title} — Summary: This article explains core ideas for ${blog.tags.join(', ')}.`
 
   return (
     <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -81,7 +98,7 @@ export default function BlogDetailPage({ params }) {
 
           <button 
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 text-white hover:bg-indigo-600"
-            onClick={() => setShowSummary(true)}
+            onClick={handleSummarize}
           >
             <Bot size={18} />
             <span>AI Summarize</span>
@@ -91,7 +108,11 @@ export default function BlogDetailPage({ params }) {
       </div>
 
       <Modal isOpen={showSummary} onClose={() => setShowSummary(false)} title="AI Summary">
-        <p className="text-gray-700 dark:text-gray-300">{dummySummary}</p>
+        {
+          isSummarizing 
+            ? <div className='flex justify-center items-center h-24'><div className='animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500'></div></div> 
+            : <p className="text-gray-700 dark:text-gray-300">{summary}</p>
+        }
       </Modal>
 
       <div className="bg-white dark:bg-neutral-900 rounded-lg shadow p-6 mb-8">
