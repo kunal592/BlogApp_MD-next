@@ -1,4 +1,4 @@
-
+'use client'
 // src/app/about/page.js
 import { Code, Users, Target, GitBranch, Zap, Palette, Search } from 'lucide-react';
 
