@@ -40,7 +40,10 @@ export default function SignupPage() {
 
   return (
     <div className="max-w-md mx-auto py-12 px-4 sm:px-6 lg:px-8">
-      <h1 className="text-4xl font-extrabold text-center text-gray-900 dark:text-white mb-8">Create Account</h1>
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white">Welcome to DevDoc’s — Where Developers Share, Learn & Grow Together.</h1>
+        <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">Join a thriving developer community. Write in Markdown, read smarter with AI summaries, and build your tech presence.</p>
+        </div>
       <div className="mt-8">
           <button
             onClick={() => signIn('google', { callbackUrl: '/' })}

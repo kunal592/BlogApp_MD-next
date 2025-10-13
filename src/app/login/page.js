@@ -26,7 +26,10 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-neutral-950">
       <div className="max-w-md w-full bg-white dark:bg-neutral-900 shadow-md rounded-lg px-8 py-10">
-        <h2 className="text-3xl font-extrabold text-center text-gray-900 dark:text-white">Login</h2>
+        <div className="text-center">
+          <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">Welcome to DevDoc’s — Where Developers Share, Learn & Grow Together.</h2>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">Join a thriving developer community. Write in Markdown, read smarter with AI summaries, and build your tech presence.</p>
+        </div>
         <div className="mt-8">
           <button
             onClick={() => signIn('google', { callbackUrl: '/' })}
