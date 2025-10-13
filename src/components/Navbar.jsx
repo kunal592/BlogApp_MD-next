@@ -1,20 +1,33 @@
+
 'use client'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useApp } from '../context/AppContext'
 import ThemeToggle from './ThemeToggle'
 import { Menu, X } from 'lucide-react'
+import PostBlogModal from './PostBlogModal' // Import the modal
+import { useRouter } from 'next/navigation' // Import the router
 
-export default function Navbar(){
+export default function Navbar() {
   const { currentUser } = useApp()
   const [open, setOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false) // State for modal
+  const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
   const handleToggle = () => setOpen(!open)
+
+  const handlePostBlogClick = () => {
+    if (currentUser) {
+      setIsModalOpen(true)
+    } else {
+      router.push('/login')
+    }
+  }
 
   return (
     <nav className="bg-white dark:bg-neutral-950 border-b border-gray-200 dark:border-neutral-800">
@@ -25,7 +38,7 @@ export default function Navbar(){
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-4">
                 <Link href="/feed" className="text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium">Feed</Link>
-                <Link href="/postblog" className="text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium">Post Blog</Link>
+                <button onClick={handlePostBlogClick} className="text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium">Post Blog</button>
                 <Link href="/about" className="text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium">About</Link>
                 <Link href="/contact" className="text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium">Contact</Link>
               </div>
@@ -70,7 +83,7 @@ export default function Navbar(){
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             <Link href="/feed" className="text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium">Feed</Link>
-            <Link href="/postblog" className="text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium">Post Blog</Link>
+            <button onClick={handlePostBlogClick} className="text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium">Post Blog</button>
             <Link href="/about" className="text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium">About</Link>
             <Link href="/contact" className="text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium">Contact</Link>
           </div>
@@ -103,6 +116,8 @@ export default function Navbar(){
           </div>
         </div>
       )}
+
+      {isModalOpen && <PostBlogModal onClose={() => setIsModalOpen(false)} />} 
     </nav>
   )
 }

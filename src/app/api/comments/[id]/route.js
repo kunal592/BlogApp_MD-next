@@ -8,8 +8,13 @@ export async function DELETE(request, { params }) {
   try {
     const session = await verifySession()
     const comment = await prisma.comment.findUnique({ where: { id: params.id } })
+
+    if (!comment) {
+        return new NextResponse(JSON.stringify({ error: 'Comment not found' }), { status: 404 });
+    }
+
     if (comment.authorId !== session.user.id) {
-      throw new Error('Unauthorized')
+        return new NextResponse(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
     }
 
     await prisma.comment.delete({ where: { id: params.id } })

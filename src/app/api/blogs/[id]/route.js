@@ -36,8 +36,13 @@ export async function PUT(request, { params }) {
     validate(updateBlogSchema, body)
 
     const blog = await prisma.blog.findUnique({ where: { id: params.id } })
+
+    if (!blog) {
+      return new NextResponse(JSON.stringify({ error: 'Blog not found' }), { status: 404 });
+    }
+
     if (blog.authorId !== session.user.id) {
-      throw new Error('Unauthorized')
+      return new NextResponse(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
     }
 
     const updatedBlog = await prisma.blog.update({
@@ -54,8 +59,13 @@ export async function DELETE(request, { params }) {
   try {
     const session = await verifySession()
     const blog = await prisma.blog.findUnique({ where: { id: params.id } })
+
+    if (!blog) {
+      return new NextResponse(JSON.stringify({ error: 'Blog not found' }), { status: 404 });
+    }
+
     if (blog.authorId !== session.user.id) {
-      throw new Error('Unauthorized')
+        return new NextResponse(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
     }
 
     await prisma.blog.delete({ where: { id: params.id } })
