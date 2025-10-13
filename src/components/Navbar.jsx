@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useApp } from '../context/AppContext'
 import ThemeToggle from './ThemeToggle'
 import { Menu, X } from 'lucide-react'
@@ -8,6 +8,11 @@ import { Menu, X } from 'lucide-react'
 export default function Navbar(){
   const { currentUser } = useApp()
   const [open, setOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleToggle = () => setOpen(!open)
 
@@ -28,7 +33,7 @@ export default function Navbar(){
           </div>
           <div className="hidden md:block">
             <div className="ml-4 flex items-center md:ml-6">
-              <ThemeToggle />
+              {mounted && <ThemeToggle />}
               {currentUser ? (
                 <>
                   <Link href="/notifications" className="ml-4 text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">
@@ -93,7 +98,7 @@ export default function Navbar(){
               </div>
             )}
             <div className="mt-3 px-2 space-y-1">
-              <ThemeToggle />
+              {mounted && <ThemeToggle />}
             </div>
           </div>
         </div>
