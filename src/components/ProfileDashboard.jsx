@@ -1,7 +1,9 @@
 'use client'
+import { useState } from 'react'
 import { useApp } from '../context/AppContext'
 import Link from 'next/link'
-import { BarChart, Bookmark, Settings } from 'lucide-react'
+import { BarChart, Bookmark, Settings, UserPlus } from 'lucide-react'
+import EditProfile from './EditProfile'
 
 const StatCard = ({ icon, label, value }) => (
     <div className="bg-gray-100 dark:bg-neutral-700 p-6 rounded-lg flex items-center">
@@ -14,25 +16,38 @@ const StatCard = ({ icon, label, value }) => (
 )
 
 export default function ProfileDashboard({ user }) {
-    const { blogs, bookmarks } = useApp()
+    const { blogs, bookmarks, currentUser } = useApp()
+    const [isEditProfileOpen, setEditProfileOpen] = useState(false)
     const bookmarkedBlogs = blogs.filter(b => bookmarks.includes(b.id))
     const userBlogs = blogs.filter(b => b.authorId === user.id)
 
     const totalBlogs = 50;
     const progress = (userBlogs.length / totalBlogs) * 100;
 
+    const isCurrentUser = currentUser.id === user.id;
+
     return (
         <div className="max-w-4xl mx-auto my-12">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <StatCard icon={<BarChart size={32} className="text-indigo-500" />} label="Blogs Published" value={userBlogs.length} />
                 <StatCard icon={<Bookmark size={32} className="text-indigo-500" />} label="Bookmarks" value={bookmarks.length} />
-                <Link href="/settings">
-                    <div className="bg-gray-100 dark:bg-neutral-700 p-6 rounded-lg flex items-center h-full cursor-pointer hover:bg-gray-200 dark:hover:bg-neutral-600">
-                        <Settings size={32} className="text-indigo-500" />
-                        <p className="ml-4 text-lg font-bold text-gray-900 dark:text-white">Settings</p>
+                <div className="grid grid-cols-2 gap-2">
+                    <Link href="/settings">
+                        <div className="bg-gray-100 dark:bg-neutral-700 p-4 rounded-lg flex items-center h-full cursor-pointer hover:bg-gray-200 dark:hover:bg-neutral-600">
+                            <Settings size={28} className="text-indigo-500" />
+                            <p className="ml-3 text-md font-bold text-gray-900 dark:text-white">Settings</p>
+                        </div>
+                    </Link>
+                    {isCurrentUser &&
+                    <div onClick={() => setEditProfileOpen(true)} className="bg-gray-100 dark:bg-neutral-700 p-4 rounded-lg flex items-center h-full cursor-pointer hover:bg-gray-200 dark:hover:bg-neutral-600">
+                        <UserPlus size={28} className="text-indigo-500" />
+                        <p className="ml-3 text-md font-bold text-gray-900 dark:text-white">Edit Profile</p>
                     </div>
-                </Link>
+                    }
+                </div>
             </div>
+
+            {isEditProfileOpen && <EditProfile user={user} onClose={() => setEditProfileOpen(false)} />}
 
             <div className="mb-8">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Publishing Progress</h3>

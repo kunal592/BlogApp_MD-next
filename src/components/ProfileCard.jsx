@@ -1,64 +1,37 @@
 'use client'
 import { useApp } from '../context/AppContext'
-import { AtSign, Calendar, MapPin } from 'lucide-react'
 
-export default function ProfileCard({ userId }) {
-  const { users, following, toggleFollow, currentUser } = useApp()
-  const user = users.find(u => u.id === userId)
-  if (!user) return null
-  const isFollowing = following.includes(userId)
+export default function ProfileCard({ user }) {
+  const { currentUser, toggleFollow, following } = useApp()
+  const isFollowing = following.includes(user.id)
+  const isCurrentUser = currentUser.id === user.id
 
   return (
-    <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-lg overflow-hidden">
-      <div className="h-32 bg-gray-200 dark:bg-neutral-800 bg-cover bg-center" style={{ backgroundImage: `url(${user.coverImage})` }}></div>
-      <div className="p-6">
-        <div className="flex items-end -mt-16">
-          <img src={user.avatar} alt="avatar" className="w-24 h-24 rounded-full border-4 border-white dark:border-neutral-900" />
-          <div className="ml-4">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{user.name}</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">@{user.username}</p>
-          </div>
+    <div className="bg-white dark:bg-neutral-800 shadow-xl rounded-lg p-6 flex flex-col items-center text-center">
+      <img src={user.avatar} alt={user.name} className="w-32 h-32 rounded-full object-cover mb-4 ring-4 ring-indigo-500 dark:ring-indigo-400" />
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{user.name}</h1>
+      <p className="text-md text-gray-500 dark:text-gray-400 mt-1">@{user.id}</p>
+      <p className="mt-4 text-gray-600 dark:text-gray-300 max-w-md">{user.bio || 'This user has not set a bio yet.'}</p>
+      <div className="flex space-x-6 mt-6">
+        <div>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{user.followers || 0}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Followers</p>
         </div>
-
-        <p className="text-gray-700 dark:text-gray-300 my-4">{user.bio}</p>
-
-        <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
-          <div className="flex items-center gap-1">
-            <MapPin size={16} />
-            <span>{user.location}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <AtSign size={16} />
-            <span>{user.email}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Calendar size={16} />
-            <span>Joined {new Date(user.createdAt).toLocaleDateString()}</span>
-          </div>
+        <div>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{user.following || 0}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Following</p>
         </div>
-
-        <div className="flex gap-4 border-t border-gray-200 dark:border-neutral-800 pt-4">
-          <div>
-            <span className="font-bold text-gray-900 dark:text-white">{user.followers}</span>
-            <span className="ml-1 text-gray-500 dark:text-gray-400">Followers</span>
-          </div>
-          <div>
-            <span className="font-bold text-gray-900 dark:text-white">{user.following}</span>
-            <span className="ml-1 text-gray-500 dark:text-gray-400">Following</span>
-          </div>
-        </div>
-
-        {currentUser.id !== userId && (
-          <div className="mt-6">
-            <button 
-              className={`px-6 py-2 rounded-full font-semibold ${isFollowing ? 'bg-gray-600 text-white' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
-              onClick={() => toggleFollow(userId)}
-            >
-              {isFollowing ? 'Following' : 'Follow'}
-            </button>
-          </div>
-        )}
       </div>
+      {!isCurrentUser && (
+        <button 
+          onClick={() => toggleFollow(user.id)}
+          className={`mt-6 px-8 py-2 rounded-full font-semibold transition-colors ${isFollowing 
+            ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300' 
+            : 'bg-indigo-600 text-white hover:bg-indigo-700'}`
+          }>
+          {isFollowing ? 'Following' : 'Follow'}
+        </button>
+      )}
     </div>
   )
 }

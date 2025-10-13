@@ -6,7 +6,7 @@ const AppContext = createContext(null)
 
 export function AppProvider({ children }) {
   const [blogs, setBlogs] = useState(mockBlogs)
-  const [users] = useState(mockUsers)
+  const [users, setUsers] = useState(mockUsers)
   const [comments, setComments] = useState(mockComments)
   const [notifications, setNotifications] = useState(mockNotes)
   const [bookmarks, setBookmarks] = useState([]) // array of blog ids
@@ -62,10 +62,19 @@ export function AppProvider({ children }) {
     setComments(prev => prev.filter(c => c.blogId !== blogId));
   }
 
+  function updateUserProfile(userId, newProfileData) {
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...newProfileData } : u));
+    setCurrentUser(prev => prev.id === userId ? { ...prev, ...newProfileData } : prev);
+  }
+
+  function updateBlog(blogId, newBlogData) {
+    setBlogs(prev => prev.map(b => b.id === blogId ? { ...b, ...newBlogData } : b));
+  }
+
   const value = useMemo(() => ({
     blogs, users, comments, notifications, currentUser, bookmarks, following,
     toggleLike, toggleBookmark, addComment, toggleFollow, markAllNotificationsRead, setBlogs,
-    addReply, likeComment, deleteBlog
+    addReply, likeComment, deleteBlog, updateUserProfile, updateBlog
   }), [blogs, users, comments, notifications, currentUser, bookmarks, following])
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
