@@ -1,81 +1,119 @@
 'use client'
-import React, { createContext, useContext, useState, useMemo } from 'react'
-import { blogs as mockBlogs, users as mockUsers, comments as mockComments, notifications as mockNotes } from '../lib/mockData'
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react'
+import { api } from '@/lib/axios'
 
 const AppContext = createContext(null)
 
 export function AppProvider({ children }) {
-  const [blogs, setBlogs] = useState(mockBlogs)
-  const [users, setUsers] = useState(mockUsers)
-  const [comments, setComments] = useState(mockComments)
-  const [notifications, setNotifications] = useState(mockNotes)
-  const [bookmarks, setBookmarks] = useState([]) // array of blog ids
-  const [following, setFollowing] = useState(['u2']) // current user follows u2
-  const [currentUser, setCurrentUser] = useState(users[0])
+  const [blogs, setBlogs] = useState([])
+  const [users, setUsers] = useState([])
+  const [comments, setComments] = useState([])
+  const [notifications, setNotifications] = useState([])
+  const [bookmarks, setBookmarks] = useState([])
+  const [following, setFollowing] = useState([])
 
-  function toggleLike(blogId) {
-    setBlogs(prev => prev.map(b => {
-      if (b.id !== blogId) return b
-      const already = !!b._liked
-      return { ...b, likes: already ? b.likes - 1 : b.likes + 1, _liked: !already }
-    }))
-  }
-
-  function toggleBookmark(blogId) {
-    setBookmarks(prev => prev.includes(blogId) ? prev.filter(id => id !== blogId) : [blogId, ...prev])
-  }
-
-  function addComment(blogId, text) {
-    const newC = { id: 'c' + Date.now(), blogId, authorId: currentUser.id, content: text, createdAt: new Date().toISOString(), likes: 0, replies: [] }
-    setComments(prev => [newC, ...prev])
-  }
-
-  function toggleFollow(userId) {
-    setFollowing(prev => prev.includes(userId) ? prev.filter(id => id !== userId) : [userId, ...prev])
-  }
-
-  function markAllNotificationsRead() {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })))
-  }
-
-  function addReply(commentId, text) {
-    const newReply = { id: 'r' + Date.now(), authorId: currentUser.id, content: text, createdAt: new Date().toISOString() };
-    setComments(prev => prev.map(c => {
-      if (c.id === commentId) {
-        return { ...c, replies: [newReply, ...(c.replies || [])] };
+  useEffect(() => {
+    // Fetch initial data
+    const fetchData = async () => {
+      try {
+        const [blogsRes, usersRes] = await Promise.all([
+          api.get('/blogs'),
+          api.get('/users'),
+        ])
+        setBlogs(blogsRes.data)
+        setUsers(usersRes.data)
+      } catch (error) {
+        console.error("Error fetching initial data:", error)
       }
-      return c;
-    }));
+    }
+    fetchData()
+  }, [])
+
+  async function fetchComments(blogId) {
+    try {
+      const res = await api.get(`/comments?blogId=${blogId}`)
+      setComments(res.data)
+    } catch (error) {
+      console.error("Error fetching comments:", error)
+    }
   }
 
-  function likeComment(commentId) {
-    setComments(prev => prev.map(c => {
-      if (c.id === commentId) {
-        return { ...c, likes: (c.likes || 0) + 1 };
-      }
-      return c;
-    }));
+  async function toggleLike(blogId) {
+    // This is a placeholder, as we don't have a like endpoint
   }
 
-  function deleteBlog(blogId) {
-    setBlogs(prev => prev.filter(b => b.id !== blogId));
-    setComments(prev => prev.filter(c => c.blogId !== blogId));
+  async function toggleBookmark(blogId) {
+    // This is a placeholder, as we don't have a bookmark endpoint
   }
 
-  function updateUserProfile(userId, newProfileData) {
-    setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...newProfileData } : u));
-    setCurrentUser(prev => prev.id === userId ? { ...prev, ...newProfileData } : prev);
+  async function addComment(blogId, content) {
+    try {
+      const res = await api.post('/comments', { blogId, content })
+      setComments(prev => [res.data, ...prev])
+    } catch (error) {
+      console.error("Error adding comment:", error)
+    }
   }
 
-  function updateBlog(blogId, newBlogData) {
-    setBlogs(prev => prev.map(b => b.id === blogId ? { ...b, ...newBlogData } : b));
+  async function toggleFollow(userId) {
+    // This is a placeholder, as we don't have a follow endpoint
+  }
+
+  async function markAllNotificationsRead() {
+    // This is a placeholder, as we don't have a notification endpoint
+  }
+
+  async function addReply(commentId, text) {
+    // This is a placeholder, as we don't have a reply endpoint
+  }
+
+  async function likeComment(commentId) {
+    // This is a placeholder, as we don't have a like endpoint
+  }
+
+  async function deleteBlog(blogId) {
+    try {
+      await api.delete(`/blogs/${blogId}`)
+      setBlogs(prev => prev.filter(b => b.id !== blogId))
+    } catch (error) {
+      console.error("Error deleting blog:", error)
+    }
+  }
+
+  async function updateUserProfile(userId, newProfileData) {
+    try {
+      const res = await api.put(`/users/${userId}`, newProfileData)
+      setUsers(prev => prev.map(u => u.id === userId ? res.data : u))
+    } catch (error) {
+      console.error("Error updating user profile:", error)
+    }
+  }
+
+  async function updateBlog(blogId, newBlogData) {
+    try {
+      const res = await api.put(`/blogs/${blogId}`, newBlogData)
+      setBlogs(prev => prev.map(b => b.id === blogId ? res.data : b))
+    } catch (error) {
+      console.error("Error updating blog:", error)
+    }
+  }
+
+  async function signup(name, email, password) {
+    try {
+      const res = await api.post('/users', { name, email, password })
+      setUsers(prev => [res.data, ...prev])
+    } catch (error) {
+      console.error("Error signing up:", error)
+      throw error
+    }
   }
 
   const value = useMemo(() => ({
-    blogs, users, comments, notifications, currentUser, bookmarks, following,
-    toggleLike, toggleBookmark, addComment, toggleFollow, markAllNotificationsRead, setBlogs,
-    addReply, likeComment, deleteBlog, updateUserProfile, updateBlog
-  }), [blogs, users, comments, notifications, currentUser, bookmarks, following])
+    blogs, users, comments, notifications, bookmarks, following,
+    fetchComments, toggleLike, toggleBookmark, addComment, toggleFollow, 
+    markAllNotificationsRead, addReply, likeComment, deleteBlog, 
+    updateUserProfile, updateBlog, setBlogs, signup
+  }), [blogs, users, comments, notifications, bookmarks, following])
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }

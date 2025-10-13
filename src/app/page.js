@@ -1,5 +1,5 @@
 'use client'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useApp } from '../context/AppContext'
 import BlogGrid from '../components/BlogGrid'
 import BlogList from '../components/BlogList'
@@ -8,10 +8,17 @@ import SearchBar from '../components/SearchBar'
 import { LayoutGrid, List } from 'lucide-react'
 
 export default function HomePage() {
-  const { blogs } = useApp()
+  const { blogs, setBlogs } = useApp()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedTag, setSelectedTag] = useState(null)
   const [viewMode, setViewMode] = useState('grid') // 'grid' or 'list'
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (blogs.length > 0) {
+      setLoading(false)
+    }
+  }, [blogs])
 
   const allTags = useMemo(() => [...new Set(blogs.flatMap(b => b.tags))], [blogs])
 
@@ -35,6 +42,10 @@ export default function HomePage() {
 
   const handleTagClick = (tag) => {
     setSelectedTag(prevTag => prevTag === tag ? null : tag)
+  }
+
+  if (loading) {
+    return <div className="text-center py-20">Loading blogs...</div>
   }
 
   return (

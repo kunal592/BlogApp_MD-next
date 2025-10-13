@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useApp } from '../../context/AppContext'
 
 export default function LoginPage() {
@@ -10,12 +11,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (login(email, password)) {
+    setError('')
+    try {
+      await login(email, password)
       router.push('/')
-    } else {
-      setError('Invalid email or password')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Invalid email or password')
     }
   }
 
@@ -53,7 +56,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {error && <p className="text-red-500 text-sm text-center mt-2">{error}</p>}
 
           <div>
             <button
@@ -64,6 +67,9 @@ export default function LoginPage() {
             </button>
           </div>
         </form>
+        <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+          Don\'t have an account? <Link href="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">Sign up</Link>
+        </p>
       </div>
     </div>
   )

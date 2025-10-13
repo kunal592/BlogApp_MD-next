@@ -9,6 +9,7 @@ import ClapButton from '../../../components/ClapButton'
 import FollowButton from '../../../components/FollowButton'
 import ShareMenu from '../../../components/ShareMenu'
 import { Bookmark, Bot } from 'lucide-react'
+import { api } from '@/lib/axios'
 
 function calculateReadingTime(text) {
   const wordsPerMinute = 200;
@@ -18,8 +19,10 @@ function calculateReadingTime(text) {
 }
 
 export default function BlogDetailPage({ params }) {
-  const { blogs, users, toggleBookmark } = useApp()
-  const blog = blogs.find(b => b.id === params.id)
+  const { toggleBookmark } = useApp()
+  const [blog, setBlog] = useState(null)
+  const [author, setAuthor] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [showSummary, setShowSummary] = useState(false)
   const [blogUrl, setBlogUrl] = useState('')
 
@@ -27,10 +30,23 @@ export default function BlogDetailPage({ params }) {
     if (typeof window !== 'undefined') {
       setBlogUrl(window.location.href)
     }
-  }, [])
 
+    const fetchBlog = async () => {
+      try {
+        const res = await api.get(`/blogs/${params.id}`)
+        setBlog(res.data)
+        setAuthor(res.data.author)
+        setLoading(false)
+      } catch (error) {
+        console.error("Error fetching blog:", error)
+        setLoading(false)
+      }
+    }
+    fetchBlog()
+  }, [params.id])
+
+  if (loading) return <div className="text-center py-16">Loading...</div>
   if (!blog) return <div className="text-center py-16">Blog not found</div>
-  const author = users.find(u => u.id === blog.authorId) || { name: 'Unknown' }
 
   const readingTime = calculateReadingTime(blog.content)
   const dummySummary = `${blog.title} — Summary: This article explains core ideas for ${blog.tags.join(', ')}.`

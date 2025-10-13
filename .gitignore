@@ -88,3 +88,5 @@ prisma/migrations/
 # -----------------------------------------------------
 # ✅ Safe for: Next.js, Tailwind, Prisma, Express
 # -----------------------------------------------------
+
+/src/generated/prisma

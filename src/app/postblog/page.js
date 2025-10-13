@@ -6,11 +6,12 @@ import { useApp } from '../../context/AppContext'
 import { UploadCloud, CheckCircle, Eye } from 'lucide-react'
 import 'react-quill/dist/quill.snow.css'
 import BlogPreviewModal from '../../components/BlogPreviewModal'
+import { api } from '@/lib/axios'
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })
 
 export default function PostBlog() {
-  const { addBlog, currentUser } = useApp()
+  const { setBlogs } = useApp()
   const router = useRouter()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
@@ -19,6 +20,7 @@ export default function PostBlog() {
   const [imagePreview, setImagePreview] = useState(null)
   const [isPublished, setIsPublished] = useState(false)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const [error, setError] = useState(null)
 
   const handleImageChange = (e) => {
     const file = e.target.files[0]
@@ -32,24 +34,31 @@ export default function PostBlog() {
     }
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!title || !content || !currentUser) return
-
-    const newBlog = {
-      title,
-      content,
-      authorId: currentUser.id,
-      tags: tags.split(',').map(tag => tag.trim()),
-      featuredImage: imagePreview,
-      createdAt: new Date().toISOString(),
+    setError(null)
+    if (!title || !content) {
+      setError('Title and content are required.')
+      return
     }
 
-    addBlog(newBlog)
-    setIsPublished(true)
-    setTimeout(() => {
-      router.push(`/blog/${newBlog.id}`)
-    }, 2000)
+    try {
+      const newBlog = {
+        title,
+        content,
+        tags: tags.split(',').map(tag => tag.trim()),
+        featuredImage: imagePreview,
+      }
+
+      const res = await api.post('/blogs', newBlog)
+      setBlogs(prev => [res.data, ...prev])
+      setIsPublished(true)
+      setTimeout(() => {
+        router.push(`/blog/${res.data.id}`)
+      }, 2000)
+    } catch (err) {
+      setError(err.response?.data?.error || 'An error occurred while publishing the post.')
+    }
   }
 
   const handlePreview = () => {
@@ -85,6 +94,7 @@ export default function PostBlog() {
         </header>
         
         <form onSubmit={handleSubmit} className="space-y-8">
+          {error && <div className="bg-red-500 text-white p-4 rounded-lg">{error}</div>}
           <div className="bg-white dark:bg-neutral-900 shadow-lg rounded-xl p-8">
             <div className="mb-6">
               <label htmlFor="title" className="block text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">Title</label>
@@ -175,7 +185,7 @@ export default function PostBlog() {
           title,
           content,
           featuredImage: imagePreview,
-          author: currentUser
+          author: {name: 'You'} // Placeholder
         }}
       />
     </>
