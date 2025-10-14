@@ -1,11 +1,22 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { useApp } from '../../context/AppContext'
-import { motion } from 'framer-motion'
-import { Sparkles } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { api } from '@/lib/axios'
+import { Heading1, Heading2, Heading3, Quote, Code, List, Image, Sparkles } from 'lucide-react'
+
+const commands = [
+  { label: "Heading 1", insert: "# ", icon: Heading1 },
+  { label: "Heading 2", insert: "## ", icon: Heading2 },
+  { label: "Heading 3", insert: "### ", icon: Heading3 },
+  { label: "Quote", insert: "> ", icon: Quote },
+  { label: "Code Block", insert: "```js\n// your code here\n```", icon: Code },
+  { label: "Image", insert: "![alt text](image-url)", icon: Image },
+  { label: "List", insert: "- ", icon: List },
+  { label: "AI Rewrite", action: "ai-rewrite", icon: Sparkles },
+];
 
 export default function PostBlogPage() {
   const [title, setTitle] = useState('')
@@ -14,6 +25,10 @@ export default function PostBlogPage() {
   const [showPreview, setShowPreview] = useState(true)
   const [showSEOResult, setShowSEOResult] = useState(false)
   const [seoData, setSeoData] = useState(null)
+  const [showCommandMenu, setShowCommandMenu] = useState(false)
+  const [commandPos, setCommandPos] = useState({ x: 0, y: 0 })
+  const [isSaving, setIsSaving] = useState(false);
+  const editorRef = useRef(null)
   const { addBlog } = useApp()
 
   const handlePublish = async () => {
@@ -26,69 +41,163 @@ export default function PostBlogPage() {
     setShowSEOResult(true)
   }
 
+  const handleInput = (e) => {
+    const text = e.target.value;
+    setContent(text);
+
+    if (text.endsWith('/')) {
+        const textarea = editorRef.current;
+        const { x, y, height } = textarea.getBoundingClientRect();
+        const cursorPosition = textarea.selectionStart;
+        const textBeforeCursor = textarea.value.substring(0, cursorPosition);
+        const lines = textBeforeCursor.split('\n');
+        const currentLine = lines.length - 1;
+        const currentLineEl = document.createElement('div');
+        currentLineEl.style.cssText = `position: absolute; top: -9999px; left: -9999px; white-space: pre; font: ${getComputedStyle(textarea).font};`;
+        currentLineEl.textContent = lines[currentLine];
+        document.body.appendChild(currentLineEl);
+        const cursorX = currentLineEl.offsetWidth;
+        document.body.removeChild(currentLineEl);
+        setCommandPos({ x: x + cursorX + 10, y: y + (currentLine + 1) * 24 + height/lines.length });
+        setShowCommandMenu(true);
+    } else {
+        setShowCommandMenu(false);
+    }
+  };
+
+  const insertCommand = async (cmd) => {
+    const textarea = editorRef.current;
+    if (!textarea) return;
+
+    setShowCommandMenu(false);
+
+    if (cmd.action === 'ai-rewrite') {
+      const selectionStart = textarea.selectionStart;
+      const selectionEnd = textarea.selectionEnd;
+      const selectedText = content.substring(selectionStart, selectionEnd);
+      if (selectedText) {
+        const { data } = await api.post('/api/ai/rewrite', { content: selectedText });
+        const newContent = content.substring(0, selectionStart) + data.improved + content.substring(selectionEnd);
+        setContent(newContent);
+      }
+      return;
+    }
+
+    const newContent = content.slice(0, content.length - 1) + cmd.insert;
+    setContent(newContent);
+    textarea.focus();
+  };
+
+  const handleSaveDraft = () => {
+    setIsSaving(true);
+    setTimeout(() => setIsSaving(false), 2000); // Simulate save
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+        if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            handleSaveDraft();
+        }
+        if (e.ctrlKey && e.key === 'Enter') {
+            e.preventDefault();
+            handlePublish();
+        }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [title, content, tags]);
+
+
   return (
-    <main className="max-w-7xl mx-auto py-10 space-y-6">
-      <h1 className="text-3xl font-bold mb-6">Create New Blog</h1>
+    <main className="max-w-7xl mx-auto py-10 px-6 space-y-6">
+    <h1 className="text-4xl font-extrabold tracking-tight text-white mb-6">Create a Masterpiece</h1>
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        <section className="flex-1 space-y-4">
-          <input
-            type="text"
-            placeholder="Enter your blog title..."
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full rounded-xl border p-4"
-          />
-          <textarea
-            className="w-full min-h-[300px] rounded-xl border p-4 font-mono"
-            placeholder="Write your blog content here..."
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
-          <div className="flex justify-between items-center mt-6">
-            <button onClick={() => {}} className="btn-secondary">Save Draft</button>
-            <div className="flex gap-3">
-              <button onClick={handleAIOptimize} className="btn-outline flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-indigo-500" />
-                Optimize for SEO (AI)
-              </button>
-              <button onClick={handlePublish} className="btn-primary">Publish</button>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div className="space-y-4">
+            <input
+                type="text"
+                placeholder="Blog Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full bg-neutral-950/70 text-white placeholder-neutral-400 rounded-xl border-2 border-neutral-800 p-4 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all duration-300 shadow-lg focus:shadow-indigo-500/30"
+            />
+            <div className="relative">
+                <textarea
+                    ref={editorRef}
+                    value={content}
+                    onChange={handleInput}
+                    className="w-full min-h-[400px] bg-neutral-950/70 text-gray-200 font-mono rounded-2xl border-2 border-neutral-800 p-4 focus:ring-2 focus:ring-indigo-500 outline-none transition-all duration-300 shadow-lg focus:shadow-indigo-500/30"
+                    placeholder="Start writing... Type / for commands"
+                />
+                <AnimatePresence>
+                    {showCommandMenu && (
+                        <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute bg-neutral-900 border border-neutral-700 rounded-xl shadow-xl p-2 w-60 z-50"
+                        style={{ top: commandPos.y, left: commandPos.x }}
+                        >
+                        {commands.map((cmd, i) => (
+                            <button
+                            key={i}
+                            onClick={() => insertCommand(cmd)}
+                            className="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral-800 flex items-center gap-3 text-neutral-200"
+                            >
+                            <cmd.icon className="w-5 h-5 text-indigo-400" />
+                            <span>{cmd.label}</span>
+                            </button>
+                        ))}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
-          </div>
+        </div>
 
-          {showSEOResult && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-6 bg-neutral-100 dark:bg-neutral-900 rounded-xl p-4 shadow-inner"
-            >
-              <h3 className="font-semibold text-lg mb-2">AI SEO Suggestions</h3>
-              <p><strong>Optimized Title:</strong> {seoData.title}</p>
-              <p><strong>Meta Description:</strong> {seoData.meta}</p>
-              <p><strong>Keywords:</strong> {seoData.keywords.join(", ")}</p>
-            </motion.div>
-          )}
-        </section>
+        <div className="bg-neutral-950/70 border-2 border-neutral-800 rounded-2xl p-6 shadow-lg h-full">
+            <h2 className="text-2xl font-bold text-white mb-4 border-b border-neutral-700 pb-2">Live Preview</h2>
+            <div className="prose prose-invert max-w-none prose-pre:bg-neutral-800 prose-pre:text-white">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{content || "_Start writing to see preview..._"}</ReactMarkdown>
+            </div>
+        </div>
+    </div>
 
-        <aside className="flex-1 bg-neutral-50 dark:bg-neutral-900 rounded-2xl shadow-inner p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xl font-semibold">Preview</h2>
-            <button
-              className="btn-xs btn-outline lg:hidden"
-              onClick={() => setShowPreview(!showPreview)}
-            >
-              {showPreview ? "Hide" : "Show"}
+    <div className="flex justify-between items-center mt-6">
+        <div className="relative">
+            {isSaving && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="text-green-400 text-sm">
+                    Draft saved!
+                </motion.div>
+            )}
+            <span className='text-gray-400 text-xs'>Ctrl+S to save</span>
+        </div>
+        <div className="flex gap-4">
+            <button onClick={handleAIOptimize} className="btn-outline flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-fuchsia-500" />
+                AI SEO Optimizer
             </button>
-          </div>
-          {showPreview && (
-            <div className="prose dark:prose-invert max-w-none border-t pt-4">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {content || "_Start writing to see preview..._"}
-              </ReactMarkdown>
-            </div>
-          )}
-        </aside>
-      </div>
+            <button onClick={handlePublish} className="btn-primary bg-gradient-to-r from-indigo-600 to-fuchsia-600 hover:opacity-90 transition-opacity">
+                Publish
+                <span className='text-gray-300 text-xs ml-2'>Ctrl+Enter</span>
+            </button>
+        </div>
+    </div>
+
+    {showSEOResult && (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-8 bg-neutral-900/80 border border-neutral-700 rounded-xl p-6 shadow-xl backdrop-blur-sm"
+        >
+            <h3 className="font-bold text-xl text-white mb-3 flex items-center gap-2">
+                <Sparkles className="text-fuchsia-400" /> AI SEO Suggestions
+            </h3>
+            <p className="text-indigo-300"><strong>Optimized Title:</strong> <span className="text-white">{seoData.title}</span></p>
+            <p className="text-indigo-300"><strong>Meta Description:</strong> <span className="text-white">{seoData.meta}</span></p>
+            <p className="text-indigo-300"><strong>Keywords:</strong> <span className="text-white">{seoData.keywords.join(", ")}</span></p>
+        </motion.div>
+    )}
     </main>
   )
 }

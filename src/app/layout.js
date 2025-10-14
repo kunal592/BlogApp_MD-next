@@ -13,9 +13,11 @@ export default function RootLayout({ children, session }) {
         <SessionProvider session={session}>
           <ThemeProvider attribute="class">
             <AppProvider>
-              <Navbar />
-              <main className="max-w-6xl mx-auto px-4 py-10">{children}</main>
-              <Footer />
+              <div className="bg-[url('/assets/devdocs-bg.svg')] bg-cover bg-fixed bg-center">
+                <Navbar />
+                <main className="max-w-6xl mx-auto px-4 py-10">{children}</main>
+                <Footer />
+              </div>
             </AppProvider>
           </ThemeProvider>
         </SessionProvider>
