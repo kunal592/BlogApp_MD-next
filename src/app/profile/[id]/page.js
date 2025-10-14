@@ -1,26 +1,21 @@
-'use client'
-import React from 'react';
-import { useApp } from '../../../context/AppContext';
-import ProfileCard from '../../../components/ProfileCard';
-import BlogGrid from '../../../components/BlogGrid';
-import ProfileDashboard from '../../../components/ProfileDashboard';
 
-export default function ProfilePage({ params }) {
-  const { users, blogs } = useApp();
-  const user = users.find(u => u.id === params.id);
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import prisma from "@/lib/prisma";
+import { redirect } from "next/navigation";
+import ProfileCard from "@/components/ProfileCard";
+import NotFound from "@/components/NotFound";
 
-  if (!user) return <div className="text-center py-16">User not found</div>;
+export default async function ProfilePage({ params }) {
+  const session = await getServerSession(authOptions);
+  if (!session) redirect("/login");
 
-  const userBlogs = blogs.filter(b => b.authorId === user.id);
+  const profile = await prisma.user.findUnique({
+    where: { id: params.id },
+    include: { blogs: true, followers: true, following: true },
+  });
 
-  return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <ProfileCard user={user} />
-      <div className="mt-12">
-        <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">Published Blogs</h2>
-        <BlogGrid blogs={userBlogs} showAuthor={false} />
-      </div>
-      <ProfileDashboard user={user} />
-    </div>
-  );
+  if (!profile) return <NotFound message="User profile not found" />;
+
+  return <ProfileCard profile={profile} session={session} />;
 }
