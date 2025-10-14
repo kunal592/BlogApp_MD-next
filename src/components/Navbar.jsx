@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useSession, signIn, signOut } from 'next-auth/react'
 import ThemeToggle from './ThemeToggle'
 import { Menu, X } from 'lucide-react'
-import PostBlogModal from './PostBlogModal'
 import { useRouter } from 'next/navigation'
 
 export default function Navbar() {
@@ -12,7 +11,6 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -23,7 +21,7 @@ export default function Navbar() {
 
   const handlePostBlogClick = () => {
     if (session) {
-      setIsModalOpen(true)
+      router.push('/postblog')
     } else {
       router.push('/login')
     }
@@ -139,8 +137,6 @@ export default function Navbar() {
           </div>
         </div>
       )}
-
-      {isModalOpen && <PostBlogModal onClose={() => setIsModalOpen(false)} />} 
     </nav>
   )
 }

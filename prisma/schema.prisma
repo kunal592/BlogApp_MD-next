@@ -17,6 +17,7 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  coverImage    String?   
   bio           String?   @db.Text
   followersCount Int      @default(0)
   followingCount Int      @default(0)
@@ -156,4 +157,14 @@ model ContactMessage {
   email     String
   message   String   @db.Text
   createdAt DateTime @default(now())
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  bio       String   @db.Text
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

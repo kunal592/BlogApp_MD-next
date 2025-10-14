@@ -1,10 +1,13 @@
 'use client'
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react'
 import { api } from '@/lib/axios'
+import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 
 const AppContext = createContext(null)
 
 export function AppProvider({ children }) {
+  const { data: session } = useSession()
   const [blogs, setBlogs] = useState([])
   const [users, setUsers] = useState([])
   const [comments, setComments] = useState([])
@@ -13,6 +16,7 @@ export function AppProvider({ children }) {
   const [following, setFollowing] = useState([])
   const [loading, setLoading] = useState(true)
   const [currentUser, setCurrentUser] = useState(null)
+  const router = useRouter()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -32,6 +36,20 @@ export function AppProvider({ children }) {
     fetchData()
   }, [])
 
+  useEffect(() => {
+    const fetchFollowing = async () => {
+      if (session) {
+        try {
+          const res = await api.get('/users/me/following')
+          setFollowing(res.data)
+        } catch (error) {
+          console.error("Error fetching following list:", error)
+        }
+      }
+    }
+    fetchFollowing()
+  }, [session])
+
   async function login(email, password) {
     try {
       const res = await api.post('/auth/login', { email, password })
@@ -46,6 +64,7 @@ export function AppProvider({ children }) {
   async function logout() {
     // You might want to remove the token from localStorage and axios headers
     setCurrentUser(null)
+    setFollowing([])
   }
 
   async function fetchComments(blogId) {
@@ -113,6 +132,16 @@ export function AppProvider({ children }) {
       console.error("Error updating blog:", error)
     }
   }
+    async function addBlog(newBlogData) {
+    try {
+      const res = await api.post('/blogs', newBlogData)
+      setBlogs(prev => [res.data, ...prev])
+      router.push(`/blog/${res.data.id}`)
+    } catch (error) {
+      console.error("Error adding blog:", error)
+    }
+  }
+
 
   async function signup(name, email, password) {
     try {
@@ -128,7 +157,7 @@ export function AppProvider({ children }) {
     blogs, users, comments, notifications, bookmarks, following, loading, currentUser,
     fetchComments, toggleLike, toggleBookmark, addComment, toggleFollow, 
     markAllNotificationsRead, addReply, likeComment, deleteBlog, publishBlog,
-    updateUserProfile, updateBlog, setBlogs, signup, login, logout
+    updateUserProfile, updateBlog, setBlogs, signup, login, logout, addBlog
   }), [blogs, users, comments, notifications, bookmarks, following, loading, currentUser])
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
