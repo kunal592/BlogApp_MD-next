@@ -1,31 +1,27 @@
 
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+const team = [
+  {
+    id: 1,
+    name: 'Smit Akhani',
+    role: 'Full Stack Developer',
+    avatar: 'https://avatars.githubusercontent.com/u/102832059?v=4',
+  },
+  {
+    id: 2,
+    name: 'John Doe',
+    role: 'Frontend Developer',
+    avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
+  },
+  {
+    id: 3,
+    name: 'Jane Smith',
+    role: 'Backend Developer',
+    avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026705d',
+  },
+];
 
 export async function GET() {
-  try {
-    const team = await prisma.teamMember.findMany();
-    return NextResponse.json(team);
-  } catch (error) {
-    console.error("Error fetching team members:", error);
-    return NextResponse.json({ error: "Failed to fetch team members" }, { status: 500 });
-  }
-}
-
-export async function POST(req) {
-  try {
-    const { name, role, bio, avatar } = await req.json();
-    if (!name || !role || !bio) {
-      return NextResponse.json({ error: "Name, role, and bio are required" }, { status: 400 });
-    }
-    const newMember = await prisma.teamMember.create({
-      data: { name, role, bio, avatar },
-    });
-    return NextResponse.json(newMember, { status: 201 });
-  } catch (error) {
-    console.error("Error creating team member:", error);
-    return NextResponse.json({ error: "Failed to create team member" }, { status: 500 });
-  }
+  return NextResponse.json(team);
 }
