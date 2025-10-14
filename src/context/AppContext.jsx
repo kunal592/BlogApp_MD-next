@@ -12,9 +12,9 @@ export function AppProvider({ children }) {
   const [bookmarks, setBookmarks] = useState([])
   const [following, setFollowing] = useState([])
   const [loading, setLoading] = useState(true)
+  const [currentUser, setCurrentUser] = useState(null)
 
   useEffect(() => {
-    // Fetch initial data
     const fetchData = async () => {
       try {
         const [blogsRes, usersRes] = await Promise.all([
@@ -32,6 +32,22 @@ export function AppProvider({ children }) {
     fetchData()
   }, [])
 
+  async function login(email, password) {
+    try {
+      const res = await api.post('/auth/login', { email, password })
+      setCurrentUser(res.data.user)
+      // You might want to store the token in localStorage and set it in axios headers
+    } catch (error) {
+      console.error("Error logging in:", error)
+      throw error
+    }
+  }
+
+  async function logout() {
+    // You might want to remove the token from localStorage and axios headers
+    setCurrentUser(null)
+  }
+
   async function fetchComments(blogId) {
     try {
       const res = await api.get(`/comments?blogId=${blogId}`)
@@ -41,13 +57,9 @@ export function AppProvider({ children }) {
     }
   }
 
-  async function toggleLike(blogId) {
-    // This is a placeholder, as we don't have a like endpoint
-  }
+  async function toggleLike(blogId) {}
 
-  async function toggleBookmark(blogId) {
-    // This is a placeholder, as we don't have a bookmark endpoint
-  }
+  async function toggleBookmark(blogId) {}
 
   async function addComment(blogId, content) {
     try {
@@ -58,21 +70,13 @@ export function AppProvider({ children }) {
     }
   }
 
-  async function toggleFollow(userId) {
-    // This is a placeholder, as we don't have a follow endpoint
-  }
+  async function toggleFollow(userId) {}
 
-  async function markAllNotificationsRead() {
-    // This is a placeholder, as we don't have a notification endpoint
-  }
+  async function markAllNotificationsRead() {}
 
-  async function addReply(commentId, text) {
-    // This is a placeholder, as we don't have a reply endpoint
-  }
+  async function addReply(commentId, text) {}
 
-  async function likeComment(commentId) {
-    // This is a placeholder, as we don't have a like endpoint
-  }
+  async function likeComment(commentId) {}
 
   async function deleteBlog(blogId) {
     try {
@@ -112,11 +116,11 @@ export function AppProvider({ children }) {
   }
 
   const value = useMemo(() => ({
-    blogs, users, comments, notifications, bookmarks, following, loading,
+    blogs, users, comments, notifications, bookmarks, following, loading, currentUser,
     fetchComments, toggleLike, toggleBookmark, addComment, toggleFollow, 
     markAllNotificationsRead, addReply, likeComment, deleteBlog, 
-    updateUserProfile, updateBlog, setBlogs, signup
-  }), [blogs, users, comments, notifications, bookmarks, following, loading])
+    updateUserProfile, updateBlog, setBlogs, signup, login, logout
+  }), [blogs, users, comments, notifications, bookmarks, following, loading, currentUser])
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }
