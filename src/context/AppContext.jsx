@@ -87,6 +87,15 @@ export function AppProvider({ children }) {
     }
   }
 
+  async function publishBlog(blogId) {
+    try {
+      const res = await api.put(`/blogs/${blogId}/publish`)
+      setBlogs(prev => prev.map(b => b.id === blogId ? res.data : b))
+    } catch (error) {
+      console.error("Error publishing blog:", error)
+    }
+  }
+
   async function updateUserProfile(userId, newProfileData) {
     try {
       const res = await api.put(`/users/${userId}`, newProfileData)
@@ -118,7 +127,7 @@ export function AppProvider({ children }) {
   const value = useMemo(() => ({
     blogs, users, comments, notifications, bookmarks, following, loading, currentUser,
     fetchComments, toggleLike, toggleBookmark, addComment, toggleFollow, 
-    markAllNotificationsRead, addReply, likeComment, deleteBlog, 
+    markAllNotificationsRead, addReply, likeComment, deleteBlog, publishBlog,
     updateUserProfile, updateBlog, setBlogs, signup, login, logout
   }), [blogs, users, comments, notifications, bookmarks, following, loading, currentUser])
 

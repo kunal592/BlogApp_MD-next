@@ -4,7 +4,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-export async function PUT(req) {
+export async function PUT(req, { params }) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -12,19 +12,15 @@ export async function PUT(req) {
   }
 
   try {
-    const { name, bio, github, twitter } = await req.json();
-    const updatedUser = await prisma.user.update({
-      where: { id: session.user.id },
+    const updatedBlog = await prisma.blog.update({
+      where: { id: params.id },
       data: {
-        name,
-        bio,
-        github,
-        twitter,
+        status: "published",
       },
     });
-    return NextResponse.json(updatedUser, { status: 200 });
+    return NextResponse.json(updatedBlog, { status: 200 });
   } catch (error) {
-    console.error("Error updating user:", error);
+    console.error("Error publishing blog:", error);
     return NextResponse.json(
       { message: "Something went wrong" },
       { status: 500 }

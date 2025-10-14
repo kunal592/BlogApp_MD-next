@@ -3,19 +3,22 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import ProfileCard from "@/components/ProfileCard";
+import ProfileDashboard from "@/components/ProfileDashboard";
 import NotFound from "@/components/NotFound";
 
 export default async function ProfilePage({ params }) {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
 
-  const profile = await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id: params.id },
-    include: { blogs: true, followers: true, following: true },
+    include: {
+      followers: true,
+      following: true,
+    },
   });
 
-  if (!profile) return <NotFound message="User profile not found" />;
+  if (!user) return <NotFound message="User profile not found" />;
 
-  return <ProfileCard profile={profile} session={session} />;
+  return <ProfileDashboard user={user} />;
 }
