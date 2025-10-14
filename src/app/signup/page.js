@@ -2,11 +2,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useApp } from '../../context/AppContext'
 import { signIn } from 'next-auth/react'
 
 export default function SignupPage() {
-  const { signup } = useApp()
   const router = useRouter()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -19,11 +17,26 @@ export default function SignupPage() {
     setError(null)
 
     try {
-      await signup(name, email, password)
-      setSuccess(true)
-      setTimeout(() => {
-        router.push('/login')
-      }, 2000)
+      const res = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, email, password })
+      })
+
+      if(res.ok) {
+        setSuccess(true)
+        await signIn('credentials', {
+          email,
+          password,
+          redirect: true,
+          callbackUrl: '/'
+        })
+      } else {
+        const data = await res.json()
+        setError(data.error || 'An error occurred during signup.')
+      }
     } catch (err) {
       setError(err.message || 'An error occurred during signup.')
     }
@@ -33,7 +46,7 @@ export default function SignupPage() {
     return (
       <div className="max-w-md mx-auto text-center py-20">
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Signup Successful!</h2>
-        <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">Redirecting to login...</p>
+        <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">Redirecting to home...</p>
       </div>
     )
   }

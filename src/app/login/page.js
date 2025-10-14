@@ -2,12 +2,10 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useApp } from '../../context/AppContext'
 import { signIn } from 'next-auth/react'
 
 export default function LoginPage() {
   const router = useRouter()
-  const { login } = useApp()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -15,11 +13,16 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    try {
-      await login(email, password)
+    const result = await signIn('credentials', {
+      redirect: false,
+      email,
+      password,
+    })
+
+    if (result.error) {
+      setError(result.error)
+    } else {
       router.push('/')
-    } catch (err) {
-      setError(err.response?.data?.message || 'Invalid email or password')
     }
   }
 
