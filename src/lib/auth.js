@@ -7,5 +7,6 @@ export async function verifySession() {
   if (!session) {
     throw new Error('Unauthorized')
   }
+  console.log('Authentication successful')
   return session
 }
