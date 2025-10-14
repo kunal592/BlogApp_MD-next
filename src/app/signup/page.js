@@ -72,7 +72,8 @@ export default function SignupPage() {
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-          <input 
+          <input
+            id="register-email"
             type="email" 
             value={email} 
             onChange={(e) => setEmail(e.target.value)} 
