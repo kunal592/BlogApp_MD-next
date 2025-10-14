@@ -37,3 +37,21 @@ export async function POST(req) {
     return errorHandler(error)
   }
 }
+
+export async function GET() {
+  try {
+    const users = await prisma.user.findMany({
+      // Exclude password from the result
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    })
+    return new NextResponse(JSON.stringify(users), { status: 200 })
+  } catch (error) {
+    return errorHandler(error)
+  }
+}
