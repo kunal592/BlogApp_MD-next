@@ -20,5 +20,5 @@ export default async function ProfilePage({ params }) {
 
   if (!user) return <NotFound message="User profile not found" />;
 
-  return <ProfileDashboard user={user} />;
+  return <ProfileDashboard user={user} session={session} />;
 }

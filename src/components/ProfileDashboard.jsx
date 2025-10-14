@@ -1,20 +1,18 @@
 
 'use client'
-import { useApp } from '../context/AppContext'
 import Link from 'next/link'
 import { useState } from 'react'
 import EditProfile from './EditProfile'
 
-export default function ProfileDashboard({ user }) {
-  const { currentUser } = useApp()
+export default function ProfileDashboard({ user, session }) {
   const [isEditProfileOpen, setEditProfileOpen] = useState(false)
 
-  const isCurrentUser = currentUser && currentUser.id === user.id
+  const isCurrentUser = session && session.user.id === user.id
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
       <div className="flex items-center gap-6">
-        <img src={user.avatar} alt={user.name} className="w-24 h-24 rounded-full border-4 border-indigo-500" />
+        <img src={user.image} alt={user.name} className="w-24 h-24 rounded-full border-4 border-indigo-500" />
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{user.name}</h1>
           <p className="text-md text-gray-500 dark:text-gray-400">@{user.id}</p>
