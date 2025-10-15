@@ -45,8 +45,9 @@ export default function EditBlogPage({ params }) {
         }),
       })
       if (res.ok) {
+        const updatedBlog = await res.json();
         toast.success('Post updated successfully!', { id: notification })
-        window.location.href = '/dashboard'
+        router.push(`/blog/${updatedBlog.id}`)
       } else {
         throw new Error('Failed to update post.')
       }
