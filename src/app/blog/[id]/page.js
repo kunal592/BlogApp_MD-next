@@ -6,7 +6,7 @@ import NotFound from "@/components/NotFound";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import CommentSection from "@/components/CommentSection";
-import ClapButton from "@/components/ClapButton";
+import LikeButton from "@/components/LikeButton";
 import FollowButton from "@/components/FollowButton";
 import ShareMenu from "@/components/ShareMenu";
 import BookmarkButton from "@/components/BookmarkButton";
@@ -24,12 +24,19 @@ export default async function BlogDetailPage({ params }) {
 
   const blog = await prisma.blog.findUnique({
     where: { id: params.id },
-    include: { author: true },
+    include: {
+      author: true,
+      likes: true,
+      bookmarks: true,
+    },
   });
 
   if (!blog) {
     return <NotFound message="Blog not found" />;
   }
+
+  const isLiked = session ? blog.likes.some(like => like.userId === session.user.id) : false;
+  const isBookmarked = session ? blog.bookmarks.some(bookmark => bookmark.userId === session.user.id) : false;
 
   const readingTime = calculateReadingTime(blog.content);
 
@@ -52,8 +59,8 @@ export default async function BlogDetailPage({ params }) {
 
       <div className="flex items-center justify-between my-8">
         <div className="flex flex-wrap gap-4">
-          <ClapButton blogId={blog.id} initialClaps={blog.likes} />
-          <BookmarkButton blogId={blog.id} />
+          <LikeButton blogId={blog.id} initialLikes={blog.likes.length} isLiked={isLiked} />
+          <BookmarkButton blogId={blog.id} isBookmarked={isBookmarked} />
           <ShareMenu blogTitle={blog.title} blogUrl={`/blog/${blog.id}`} />
         </div>
       </div>
@@ -69,7 +76,7 @@ export default async function BlogDetailPage({ params }) {
                 <div className="text-sm text-gray-500 dark:text-gray-400">{blog.author.bio}</div>
               </div>
             </div>
-          {session && session.user.id !== blog.author.id && <FollowButton targetUserId={blog.author.id} />} 
+          {session && session.user.id !== blog.author.id && <FollowButton userId={blog.author.id} isFollowing={!!blog.author.followers.find(f => f.followerId === session.user.id)} />} 
         </div>
       </div>
 

@@ -7,33 +7,32 @@ import { errorHandler } from '@/lib/errorHandler'
 export async function POST(request, { params }) {
   try {
     const session = await verifySession()
-    const { id: followeeId } = params
-    const followerId = session.user.id
+    const { blogId } = params
 
-    const existingFollow = await prisma.follow.findUnique({
+    const existingBookmark = await prisma.bookmark.findUnique({
       where: {
-        followerId_followeeId: {
-          followerId,
-          followeeId,
+        userId_blogId: {
+          userId: session.user.id,
+          blogId,
         },
       },
     })
 
-    if (existingFollow) {
-      await prisma.follow.delete({
+    if (existingBookmark) {
+      await prisma.bookmark.delete({
         where: {
-          id: existingFollow.id,
+          id: existingBookmark.id,
         },
       })
       return new NextResponse(null, { status: 204 })
     } else {
-      const newFollow = await prisma.follow.create({
+      const newBookmark = await prisma.bookmark.create({
         data: {
-          followerId,
-          followeeId,
+          userId: session.user.id,
+          blogId,
         },
       })
-      return new NextResponse(JSON.stringify(newFollow), { status: 201 })
+      return new NextResponse(JSON.stringify(newBookmark), { status: 201 })
     }
   } catch (error) {
     return errorHandler(error)

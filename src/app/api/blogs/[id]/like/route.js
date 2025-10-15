@@ -9,7 +9,7 @@ export async function POST(request, { params }) {
     const session = await verifySession()
     const { blogId } = params
 
-    const existingLike = await prisma.like.findUnique({
+    const existingLike = await prisma.blogLike.findUnique({
       where: {
         userId_blogId: {
           userId: session.user.id,
@@ -19,14 +19,14 @@ export async function POST(request, { params }) {
     })
 
     if (existingLike) {
-      await prisma.like.delete({
+      await prisma.blogLike.delete({
         where: {
           id: existingLike.id,
         },
       })
       return new NextResponse(null, { status: 204 })
     } else {
-      const newLike = await prisma.like.create({
+      const newLike = await prisma.blogLike.create({
         data: {
           userId: session.user.id,
           blogId,
