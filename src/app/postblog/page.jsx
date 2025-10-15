@@ -1,11 +1,11 @@
 
 'use client'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { useApp } from '../../context/AppContext'
 import { motion } from 'framer-motion'
-import { Sparkles, Tags, Eye, Code, Save, Send } from 'lucide-react'
+import { Sparkles, Tags, Eye, Code, Save, Send, Image as ImageIcon } from 'lucide-react'
 import { api } from '@/lib/axios'
 import CodeBlock from '@/components/CodeBlock'
 import toast from 'react-hot-toast'
@@ -18,6 +18,8 @@ export default function PostBlogPage() {
   const [seoData, setSeoData] = useState(null)
   const [isSaving, setIsSaving] = useState(false)
   const { addBlog } = useApp()
+  const fileInputRef = useRef(null)
+  const contentRef = useRef(null)
 
   const handlePublish = async () => {
     const notification = toast.loading('Publishing your post...')
@@ -61,12 +63,47 @@ export default function PostBlogPage() {
     }
   }
 
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const notification = toast.loading('Uploading image...');
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await api.post('/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      const imageUrl = res.data.url;
+      const markdownImage = `![${file.name}](${imageUrl})\n`;
+      
+      // Insert the markdown image at the current cursor position in the textarea
+      const textarea = contentRef.current;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const newContent = content.substring(0, start) + markdownImage + content.substring(end);
+      setContent(newContent);
+
+      toast.success('Image uploaded successfully!', { id: notification });
+    } catch (error) {
+      toast.error('Failed to upload image.', { id: notification });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-neutral-900 text-white">
       <header className="bg-neutral-950/50 backdrop-blur-sm shadow-lg sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-purple-400 to-indigo-500 text-transparent bg-clip-text">Create New Post</h1>
           <div className="flex items-center gap-4">
+            <button onClick={() => fileInputRef.current.click()} className="btn-secondary text-sm flex items-center gap-2">
+              <ImageIcon className="w-4 h-4" />
+              Upload Image
+            </button>
+            <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
             <button onClick={handleSaveDraft} className="btn-secondary text-sm flex items-center gap-2" disabled={isSaving}>
               <Save className="w-4 h-4" />
               {isSaving ? 'Saving...' : 'Save Draft'}
@@ -92,6 +129,7 @@ export default function PostBlogPage() {
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <textarea
+              ref={contentRef}
               className="w-full min-h-[500px] bg-neutral-800/60 border-2 border-neutral-700 rounded-lg p-4 font-mono text-gray-300 placeholder-neutral-500 focus:ring-2 focus:ring-indigo-500 outline-none transition-all duration-300 resize-y"
               placeholder="// Your markdown masterpiece starts here...\n// Use code blocks for snippets."
               value={content}
