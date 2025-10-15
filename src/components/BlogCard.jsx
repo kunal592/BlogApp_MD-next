@@ -1,72 +1,87 @@
+
 'use client'
-import { useState } from 'react'
 import Link from 'next/link'
-import { useApp } from '../context/AppContext'
-import { Trash2, Edit } from 'lucide-react'
-import EditBlog from './EditBlog'
+import { useSession } from 'next-auth/react'
+import toast from 'react-hot-toast'
+import { useRouter } from 'next/navigation'
 
-export default function BlogCard({ blog, showAuthor = true }) {
-  const { users, currentUser, deleteBlog } = useApp()
-  const [isEditing, setEditing] = useState(false)
-  const author = users.find(u => u.id === blog.authorId)
+export default function BlogCard({ blog, view }) {
+  const { data: session } = useSession()
+  const router = useRouter()
 
-  const isAuthor = currentUser && currentUser.id === blog.authorId
+  const handleDelete = async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
 
-  const handleDelete = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
     if (window.confirm('Are you sure you want to delete this blog post?')) {
-      deleteBlog(blog.id);
+      const notification = toast.loading('Deleting blog post...')
+      try {
+        const res = await fetch(`/api/blogs/${blog.id}`, { method: 'DELETE' })
+        if (res.ok) {
+          toast.success('Blog post deleted', { id: notification })
+          router.refresh()
+        } else {
+          throw new Error('Failed to delete blog post')
+        }
+      } catch (error) {
+        toast.error(error.message, { id: notification })
+      }
     }
   }
 
-  const handleEdit = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setEditing(true);
-  }
+  const isAuthor = session?.user?.id === blog.authorId
 
-  const handleCloseEdit = () => {
-    setEditing(false);
+  if (view === 'list') {
+    return (
+      <div className="bg-neutral-800 shadow-lg rounded-lg overflow-hidden transition-transform hover:scale-[1.02] hover:shadow-indigo-500/30 flex flex-col md:flex-row">
+        <img className="w-full md:w-1/3 h-48 object-cover" src={blog.image} alt={blog.title} />
+        <div className="p-6 flex flex-col justify-between w-full">
+          <div>
+            <h3 className="text-2xl font-bold text-white mb-2 truncate">{blog.title}</h3>
+            <p className="text-gray-300 mb-4 h-12 overflow-hidden text-ellipsis">{blog.excerpt}</p>
+            <div className="flex items-center mb-4">
+              <img className="w-10 h-10 rounded-full mr-4" src={blog.author.image} alt={blog.author.name} />
+              <div>
+                <p className="text-white font-semibold">{blog.author.name}</p>
+                <p className="text-gray-400 text-sm">{new Date(blog.createdAt).toLocaleDateString()}</p>
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end items-center gap-4 mt-4">
+            {isAuthor && (
+              <>
+                <Link href={`/edit/${blog.id}`} className="btn-xs btn-outline">Edit</Link>
+                <button onClick={handleDelete} className="btn-xs btn-outline text-red-500">Delete</button>
+              </>
+            )}
+            <Link href={`/blog/${blog.id}`} className="btn-xs btn-outline text-indigo-400">Read More &rarr;</Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="bg-white dark:bg-neutral-800 shadow-lg rounded-lg overflow-hidden transition-transform hover:scale-105 relative">
+    <div className="bg-neutral-800 shadow-lg rounded-lg overflow-hidden transition-transform hover:scale-105 hover:shadow-indigo-500/30 flex flex-col">
+      <img className="w-full h-48 object-cover" src={blog.image} alt={blog.title} />
+      <div className="p-6 flex flex-col flex-grow">
+        <h3 className="text-xl font-bold text-white mb-2 truncate">{blog.title}</h3>
+        <p className="text-gray-300 mb-4 h-12 overflow-hidden text-ellipsis flex-grow">{blog.excerpt}</p>
+        <div className="flex items-center mt-auto pt-4 border-t border-neutral-700">
+          <img className="w-10 h-10 rounded-full mr-4" src={blog.author.image} alt={blog.author.name} />
+          <div>
+            <p className="text-white font-semibold">{blog.author.name}</p>
+            <p className="text-gray-400 text-sm">{new Date(blog.createdAt).toLocaleDateString()}</p>
+          </div>
+        </div>
+      </div>
       {isAuthor && (
-        <div className="absolute top-2 right-2 z-10 flex space-x-2">
-          <button 
-            onClick={handleEdit}
-            className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            aria-label="Edit blog post"
-          >
-            <Edit size={18} />
-          </button>
-          <button 
-            onClick={handleDelete}
-            className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-            aria-label="Delete blog post"
-          >
-            <Trash2 size={18} />
-          </button>
+        <div className="flex gap-3 p-3 bg-neutral-900/50">
+          <Link href={`/edit/${blog.id}`} className="btn-xs btn-outline w-full">Edit</Link>
+          <button onClick={handleDelete} className="btn-xs btn-outline text-red-500 w-full">Delete</button>
         </div>
       )}
-      <Link href={`/blog/${blog.id}`} className="block">
-        <img className="w-full h-48 object-cover" src={blog.image} alt={blog.title} />
-        <div className="p-6">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 truncate">{blog.title}</h3>
-          <p className="text-gray-700 dark:text-gray-300 mb-4 h-12 overflow-hidden text-ellipsis">{blog.excerpt}</p>
-          {showAuthor && author && (
-            <div className="flex items-center">
-              <img className="w-10 h-10 rounded-full mr-4" src={author.avatar} alt={author.name} />
-              <div>
-                <p className="text-gray-900 dark:text-white font-semibold">{author.name}</p>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">{new Date(blog.createdAt).toLocaleDateString()}</p>
-              </div>
-            </div>
-          )}
-        </div>
-      </Link>
-      {isEditing && <EditBlog blog={blog} onClose={handleCloseEdit} />}
+      <Link href={`/blog/${blog.id}`} className="btn btn-primary rounded-t-none">Continue Reading &rarr;</Link>
     </div>
-  );
+  )
 }

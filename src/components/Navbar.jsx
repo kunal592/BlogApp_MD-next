@@ -1,13 +1,16 @@
+
 'use client'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useSession, signIn, signOut } from 'next-auth/react'
 import ThemeToggle from './ThemeToggle'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, LayoutGrid, List } from 'lucide-react'
+import { useApp } from '../context/AppContext'
 import { useRouter } from 'next/navigation'
 
 export default function Navbar() {
   const { data: session } = useSession()
+  const { viewMode, toggleView } = useApp()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -27,7 +30,6 @@ export default function Navbar() {
     }
   }
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleOutsideClick = (event) => {
       if (dropdownOpen && !event.target.closest('.profile-dropdown-container')) {
@@ -56,6 +58,9 @@ export default function Navbar() {
           <div className="hidden md:block">
             <div className="ml-4 flex items-center md:ml-6">
               {mounted && <ThemeToggle />}
+              <button onClick={toggleView} className="p-2 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white ml-3">
+                {viewMode === 'grid' ? <List size={20} /> : <LayoutGrid size={20} />}
+              </button>
               {session ? (
                 <div className="ml-3 relative profile-dropdown-container">
                   <div>

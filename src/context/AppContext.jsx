@@ -1,3 +1,4 @@
+
 'use client'
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react'
 import { api } from '@/lib/axios'
@@ -16,7 +17,15 @@ export function AppProvider({ children }) {
   const [following, setFollowing] = useState([])
   const [loading, setLoading] = useState(true)
   const [currentUser, setCurrentUser] = useState(null)
+  const [viewMode, setViewMode] = useState('grid')
   const router = useRouter()
+
+  useEffect(() => {
+    const savedViewMode = localStorage.getItem('devdocs_view_mode')
+    if (savedViewMode) {
+      setViewMode(savedViewMode)
+    }
+  }, [])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,11 +59,18 @@ export function AppProvider({ children }) {
     fetchFollowing()
   }, [session])
 
+  const toggleView = () => {
+    setViewMode(prevMode => {
+      const newMode = prevMode === 'grid' ? 'list' : 'grid'
+      localStorage.setItem('devdocs_view_mode', newMode)
+      return newMode
+    })
+  }
+
   async function login(email, password) {
     try {
       const res = await api.post('/auth/login', { email, password })
       setCurrentUser(res.data.user)
-      // You might want to store the token in localStorage and set it in axios headers
     } catch (error) {
       console.error("Error logging in:", error)
       throw error
@@ -62,7 +78,6 @@ export function AppProvider({ children }) {
   }
 
   async function logout() {
-    // You might want to remove the token from localStorage and axios headers
     setCurrentUser(null)
     setFollowing([])
   }
@@ -154,11 +169,11 @@ export function AppProvider({ children }) {
   }
 
   const value = useMemo(() => ({
-    blogs, users, comments, notifications, bookmarks, following, loading, currentUser,
+    blogs, users, comments, notifications, bookmarks, following, loading, currentUser, viewMode,
     fetchComments, toggleLike, toggleBookmark, addComment, toggleFollow, 
     markAllNotificationsRead, addReply, likeComment, deleteBlog, publishBlog,
-    updateUserProfile, updateBlog, setBlogs, signup, login, logout, addBlog
-  }), [blogs, users, comments, notifications, bookmarks, following, loading, currentUser])
+    updateUserProfile, updateBlog, setBlogs, signup, login, logout, addBlog, toggleView
+  }), [blogs, users, comments, notifications, bookmarks, following, loading, currentUser, viewMode])
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }
