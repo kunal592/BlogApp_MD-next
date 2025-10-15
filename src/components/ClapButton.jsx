@@ -1,23 +1,48 @@
+
 'use client'
-import { useState, useCallback } from 'react'
-import { Hand } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useCallback } from 'react';
+import { useSession } from 'next-auth/react';
+import toast from 'react-hot-toast';
+import { Hand } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const ClapButton = ({ initialClaps = 0 }) => {
-  const [clapCount, setClapCount] = useState(initialClaps)
-  const [isClapping, setIsClapping] = useState(false)
+const ClapButton = ({ blogId, initialClaps = 0 }) => {
+  const { data: session } = useSession();
+  const [clapCount, setClapCount] = useState(initialClaps);
+  const [isClapping, setIsClapping] = useState(false);
 
-  const handleClap = useCallback(() => {
-    setClapCount(prev => prev + 1)
-    setIsClapping(true)
-  }, [])
+  const handleClap = useCallback(async () => {
+    if (!session) {
+      toast.error('Please log in to clap for this post.');
+      return;
+    }
+
+    setIsClapping(true);
+
+    try {
+      const res = await fetch('/api/claps', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ blogId }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setClapCount(data.likes);
+      } else {
+        throw new Error('Failed to clap for the post.');
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  }, [session, blogId]);
 
   return (
-    <div className="flex items-center space-x-4">
+    <div className="flex items-center gap-2">
       <motion.button
         onClick={handleClap}
         onAnimationComplete={() => setIsClapping(false)}
-        className="relative flex items-center justify-center w-16 h-16 rounded-full bg-indigo-500 text-white shadow-lg focus:outline-none"
+        className="relative flex items-center justify-center p-2 rounded-lg bg-gray-200 dark:bg-neutral-800"
         whileTap={{ scale: 1.1 }}
       >
         {isClapping && (
@@ -26,30 +51,17 @@ const ClapButton = ({ initialClaps = 0 }) => {
               initial={{ opacity: 1, y: 0, scale: 0 }}
               animate={{ opacity: 0, y: -40, scale: 1.5 }}
               exit={{ opacity: 0 }}
-              className="absolute text-2xl font-bold"
+              className="absolute text-lg font-bold"
             >
               +1
             </motion.div>
           </AnimatePresence>
         )}
-        <Hand size={32} />
+        <Hand size={18} />
       </motion.button>
-      <div className="relative">
-        <AnimatePresence>
-          <motion.span
-            key={clapCount}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="text-2xl font-bold text-gray-800 dark:text-gray-200"
-          >
-            {clapCount}
-          </motion.span>
-        </AnimatePresence>
-      </div>
+      <span className="font-semibold">{clapCount}</span>
     </div>
-  )
-}
+  );
+};
 
 export default ClapButton;

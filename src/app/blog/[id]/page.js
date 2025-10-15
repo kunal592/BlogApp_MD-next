@@ -9,7 +9,8 @@ import CommentSection from "@/components/CommentSection";
 import ClapButton from "@/components/ClapButton";
 import FollowButton from "@/components/FollowButton";
 import ShareMenu from "@/components/ShareMenu";
-import { Bookmark } from "lucide-react";
+import BookmarkButton from "@/components/BookmarkButton";
+import AiSummary from "@/components/AiSummary";
 
 function calculateReadingTime(text) {
   const wordsPerMinute = 200;
@@ -51,14 +52,13 @@ export default async function BlogDetailPage({ params }) {
 
       <div className="flex items-center justify-between my-8">
         <div className="flex flex-wrap gap-4">
-          <ClapButton initialClaps={blog.likes} />
-          <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-200 dark:bg-neutral-800">
-            <Bookmark size={18} />
-            <span>Bookmark</span>
-          </button>
+          <ClapButton blogId={blog.id} initialClaps={blog.likes} />
+          <BookmarkButton blogId={blog.id} />
           <ShareMenu blogTitle={blog.title} blogUrl={`/blog/${blog.id}`} />
         </div>
       </div>
+
+      <AiSummary content={blog.content} />
 
       <div className="bg-white dark:bg-neutral-900 rounded-lg shadow p-6 mb-8">
         <div className="flex items-center justify-between">
