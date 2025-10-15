@@ -9,6 +9,7 @@ import { validate } from '@/lib/validation'
 const updateBlogSchema = z.object({
   title: z.string().min(1).optional(),
   content: z.string().min(1).optional(),
+  excerpt: z.string().min(1).optional(),
   image: z.string().url().optional(),
   tags: z.array(z.string()).optional(),
   status: z.enum(['published', 'draft']).optional(),

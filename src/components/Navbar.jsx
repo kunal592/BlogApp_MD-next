@@ -49,7 +49,7 @@ export default function Navbar() {
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-4">
                 <Link href="/feed" className="text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium">Feed</Link>
-                <button onClick={handlePostBlogClick} className="text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium">Post Blog</button>
+                <button onClick={handlePostBlogClick} className="btn-premium">Post Blog</button>
                 <Link href="/about" className="text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium">About</Link>
                 <Link href="/contact" className="text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium">Contact</Link>
               </div>
@@ -86,8 +86,8 @@ export default function Navbar() {
                 </div>
               ) : (
                 <div className="flex items-center space-x-2">
-                  <button onClick={() => signIn()} className="text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium">Login</button>
-                  <Link href="/signup" className="text-gray-500 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-md text-sm font-medium">Sign Up</Link>
+                  <button onClick={() => signIn()} className="btn-secondary">Login</button>
+                  <Link href="/signup" className="btn-primary">Sign Up</Link>
                 </div>
               )}
             </div>
