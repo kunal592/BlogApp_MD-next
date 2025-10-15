@@ -25,7 +25,8 @@ model User {
   sessions      Session[]
   blogs         Blog[]
   comments      Comment[]
-  likes         Like[]
+  blogLikes     BlogLike[]
+  commentLikes  CommentLike[]
   bookmarks     Bookmark[]
   followers     Follow[]  @relation("following")
   following     Follow[]  @relation("follower")
@@ -84,7 +85,7 @@ model Blog {
   authorId       String
   author         User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments       Comment[]
-  likes          Like[]
+  likes          BlogLike[]
   bookmarks      Bookmark[]
 }
 
@@ -100,20 +101,28 @@ model Comment {
   parent      Comment?  @relation("Replies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   parentId    String?
   replies     Comment[] @relation("Replies")
-  likes       Like[]
+  likes       CommentLike[]
 }
 
-model Like {
-  id          String   @id @default(cuid())
-  createdAt   DateTime @default(now())
-  userId      String
-  blogId      String?
-  commentId   String?
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  blog        Blog?    @relation(fields: [blogId], references: [id], onDelete: Cascade)
-  comment     Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+model BlogLike {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  userId    String
+  blogId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  blog      Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
 
   @@unique([userId, blogId])
+}
+
+model CommentLike {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  userId    String
+  commentId String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
   @@unique([userId, commentId])
 }
 
