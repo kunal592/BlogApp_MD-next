@@ -74,6 +74,9 @@ export default function Navbar() {
                       <Link href={`/profile/${session.user.id}`} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700" onClick={() => setDropdownOpen(false)}>Profile</Link>
                       <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700" onClick={() => setDropdownOpen(false)}>Dashboard</Link>
                       <Link href="/bookmarks" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700" onClick={() => setDropdownOpen(false)}>Bookmarks</Link>
+                      {session.user.role === 'ADMIN' && (
+                        <Link href="/admin" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700" onClick={() => setDropdownOpen(false)}>Admin</Link>
+                      )}
                       <button onClick={() => { signOut(); setDropdownOpen(false); }} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700">
                         Logout
                       </button>
@@ -121,6 +124,9 @@ export default function Navbar() {
                     <Link href={`/profile/${session.user.id}`} className="block px-3 py-2 rounded-md text-base font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800">Profile</Link>
                     <Link href="/dashboard" className="block px-3 py-2 rounded-md text-base font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800">Dashboard</Link>
                     <Link href="/bookmarks" className="block px-3 py-2 rounded-md text-base font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800">Bookmarks</Link>
+                    {session.user.role === 'ADMIN' && (
+                      <Link href="/admin" className="block px-3 py-2 rounded-md text-base font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800">Admin</Link>
+                    )}
                     <button onClick={() => signOut()} className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800">
                         Logout
                     </button>

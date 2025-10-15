@@ -41,7 +41,6 @@ export const authOptions = {
           return null
         }
         
-        console.log("auth done")
         return user
       },
     }),
@@ -52,14 +51,15 @@ export const authOptions = {
   callbacks: {
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id
+        session.user.id = token.id;
+        session.user.role = token.role;
       }
       return session
     },
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
-        console.log("auth done")
+        token.id = user.id;
+        token.role = user.role;
       }
       return token
     },
