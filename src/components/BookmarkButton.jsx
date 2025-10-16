@@ -1,42 +1,33 @@
 
 'use client'
-import { useState, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
-import toast from 'react-hot-toast';
+import { useState } from 'react';
+import { useApp } from '../context/AppContext';
 import { Bookmark } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { toggleBookmark } from '@/lib/api';
 
-const BookmarkButton = ({ blogId, isBookmarked: initialIsBookmarked = false }) => {
-  const { data: session } = useSession();
-  const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked);
+export default function BookmarkButton({ blogId, isBookmarked: initialIsBookmarked }) {
+    const { bookmarkBlog, unbookmarkBlog, currentUser } = useApp();
+    const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked);
 
-  const handleBookmark = useCallback(async () => {
-    if (!session) {
-      toast.error('Please log in to bookmark this post.');
-      return;
-    }
+    const handleBookmark = async () => {
+        if (!currentUser) return;
 
-    const originalIsBookmarked = isBookmarked;
-    setIsBookmarked(!isBookmarked);
+        if (isBookmarked) {
+            await unbookmarkBlog(blogId);
+            setIsBookmarked(false);
+        } else {
+            await bookmarkBlog(blogId);
+            setIsBookmarked(true);
+        }
+    };
 
-    try {
-      await toggleBookmark(blogId);
-    } catch (error) {
-      setIsBookmarked(originalIsBookmarked);
-      toast.error('Failed to update bookmark status.');
-    }
-  }, [session, blogId, isBookmarked]);
-
-  return (
-    <motion.button
-      onClick={handleBookmark}
-      className="flex items-center justify-center p-2 rounded-lg bg-gray-200 dark:bg-neutral-800"
-      whileTap={{ scale: 1.2 }}
-    >
-      <Bookmark size={18} fill={isBookmarked ? 'currentColor' : 'none'} />
-    </motion.button>
-  );
-};
-
-export default BookmarkButton;
+    return (
+        <button
+            onClick={handleBookmark}
+            disabled={!currentUser}
+            className="flex items-center space-x-2 text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 disabled:opacity-50 transition-colors duration-200"
+        >
+            <Bookmark size={20} fill={isBookmarked ? 'currentColor' : 'none'} />
+            <span className="font-medium">{isBookmarked ? 'Bookmarked' : 'Bookmark'}</span>
+        </button>
+    );
+}

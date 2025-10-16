@@ -1,50 +1,37 @@
 
 'use client'
-import { useState, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
-import toast from 'react-hot-toast';
+import { useState } from 'react';
+import { useApp } from '../context/AppContext';
 import { Heart } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { toggleLike } from '@/lib/api';
 
-const LikeButton = ({ blogId, initialLikes = 0, isLiked: initialIsLiked = false }) => {
-  const { data: session } = useSession();
-  const [likeCount, setLikeCount] = useState(initialLikes);
-  const [isLiked, setIsLiked] = useState(initialIsLiked);
+export default function LikeButton({ blogId, initialLikes, isLiked: initialIsLiked }) {
+    const { likeBlog, unlikeBlog, currentUser } = useApp();
+    const [likes, setLikes] = useState(initialLikes);
+    const [isLiked, setIsLiked] = useState(initialIsLiked);
 
-  const handleLike = useCallback(async () => {
-    if (!session) {
-      toast.error('Please log in to like this post.');
-      return;
-    }
+    const handleLike = async () => {
+        if (!currentUser) return;
 
-    const originalIsLiked = isLiked;
-    const originalLikeCount = likeCount;
+        if (isLiked) {
+            await unlikeBlog(blogId);
+            setLikes(likes - 1);
+            setIsLiked(false);
+        } else {
+            await likeBlog(blogId);
+            setLikes(likes + 1);
+            setIsLiked(true);
+        }
+    };
 
-    setIsLiked(!isLiked);
-    setLikeCount(likeCount + (!isLiked ? 1 : -1));
-
-    try {
-      await toggleLike(blogId);
-    } catch (error) {
-      setIsLiked(originalIsLiked);
-      setLikeCount(originalLikeCount);
-      toast.error('Failed to update like status.');
-    }
-  }, [session, blogId, isLiked, likeCount]);
-
-  return (
-    <div className="flex items-center gap-2">
-      <motion.button
-        onClick={handleLike}
-        className="flex items-center justify-center p-2 rounded-lg bg-gray-200 dark:bg-neutral-800"
-        whileTap={{ scale: 1.2 }}
-      >
-        <Heart size={18} fill={isLiked ? 'red' : 'none'} color={isLiked ? 'red' : 'currentColor'} />
-      </motion.button>
-      <span className="font-semibold">{likeCount}</span>
-    </div>
-  );
-};
-
-export default LikeButton;
+    return (
+        <button
+            onClick={handleLike}
+            disabled={!currentUser}
+            className={`flex items-center space-x-2 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 disabled:opacity-50 transition-colors duration-200 ${isLiked ? 'text-red-600 dark:text-red-400' : ''
+                }`}
+        >
+            <Heart size={20} fill={isLiked ? 'currentColor' : 'none'} />
+            <span className="font-medium">{likes}</span>
+        </button>
+    );
+}

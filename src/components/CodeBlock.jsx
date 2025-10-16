@@ -1,31 +1,32 @@
 
 'use client'
-import { useState } from 'react'
-import { Check, Clipboard } from 'lucide-react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { coldarkDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { Check, Copy } from 'lucide-react';
+import { useState } from 'react';
 
-export default function CodeBlock({ children, ...props }) {
-  const [isCopied, setIsCopied] = useState(false)
+export default function CodeBlock({ code, language }) {
+    const [isCopied, setIsCopied] = useState(false);
 
-  const handleCopy = () => {
-    if (children && typeof children[0] === 'object' && children[0].props && children[0].props.children) {
-      const code = children[0].props.children[0]
-      navigator.clipboard.writeText(code).then(() => {
-        setIsCopied(true)
-        setTimeout(() => setIsCopied(false), 2000)
-      })
-    }
-  }
+    const handleCopy = () => {
+        navigator.clipboard.writeText(code);
+        setIsCopied(true);
+        setTimeout(() => {
+            setIsCopied(false);
+        }, 2000);
+    };
 
-  return (
-    <div className="relative">
-      <button
-        onClick={handleCopy}
-        className="absolute top-2 right-2 p-1.5 rounded-md bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-white transition-colors"
-        aria-label="Copy code"
-      >
-        {isCopied ? <Check className="w-4 h-4" /> : <Clipboard className="w-4 h-4" />}
-      </button>
-      <pre {...props}>{children}</pre>
-    </div>
-  )
+    return (
+        <div className="relative">
+            <button
+                onClick={handleCopy}
+                className="absolute top-2 right-2 p-1.5 rounded-md bg-gray-800 text-gray-400 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
+            >
+                {isCopied ? <Check size={16} /> : <Copy size={16} />}
+            </button>
+            <SyntaxHighlighter language={language} style={coldarkDark}>
+                {code}
+            </SyntaxHighlighter>
+        </div>
+    );
 }
