@@ -9,8 +9,8 @@ export async function GET(request) {
     const session = await verifySession()
     const unreadCount = await prisma.notification.count({
       where: {
-        userId: session.user.id,
-        read: false,
+        toUserId: session.user.id,
+        isRead: false,
       },
     })
     return new NextResponse(JSON.stringify({ count: unreadCount }), { status: 200 })

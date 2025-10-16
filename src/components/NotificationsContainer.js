@@ -4,7 +4,7 @@ import NotificationItem from './NotificationItem'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSession } from 'next-auth/react'
 
-const NotificationsContainer = ({ initialNotifications }) => {
+const NotificationsContainer = ({ initialNotifications = [] }) => {
     const [notifications, setNotifications] = useState(initialNotifications)
     const { data: session } = useSession()
 
