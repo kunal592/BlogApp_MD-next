@@ -7,6 +7,7 @@ import ThemeToggle from './ThemeToggle'
 import { Menu, X } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import { useRouter } from 'next/navigation'
+import NotificationIcon from './NotificationIcon'
 
 export default function Navbar() {
   const { data: session } = useSession()
@@ -57,6 +58,7 @@ export default function Navbar() {
           <div className="hidden md:block">
             <div className="ml-4 flex items-center md:ml-6">
               {mounted && <ThemeToggle />}
+              {session && <NotificationIcon />}
               {session ? (
                 <div className="ml-3 relative profile-dropdown-container">
                   <div>
@@ -74,6 +76,7 @@ export default function Navbar() {
                       <Link href={`/profile/${session.user.id}`} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700" onClick={() => setDropdownOpen(false)}>Profile</Link>
                       <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700" onClick={() => setDropdownOpen(false)}>Dashboard</Link>
                       <Link href="/bookmarks" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700" onClick={() => setDropdownOpen(false)}>Bookmarks</Link>
+                      <Link href="/notifications" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700">Notifications</Link>                      
                       {session.user.role === 'ADMIN' && (
                         <Link href="/admin" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700" onClick={() => setDropdownOpen(false)}>Admin</Link>
                       )}
@@ -107,6 +110,7 @@ export default function Navbar() {
             <button onClick={handlePostBlogClick} className="text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium">Post Blog</button>
             <Link href="/about" className="text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium">About</Link>
             <Link href="/contact" className="text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium">Contact</Link>
+            {session && <NotificationIcon />}
           </div>
           <div className="pt-4 pb-3 border-t border-gray-700">
             {session ? (
@@ -124,6 +128,7 @@ export default function Navbar() {
                     <Link href={`/profile/${session.user.id}`} className="block px-3 py-2 rounded-md text-base font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800">Profile</Link>
                     <Link href="/dashboard" className="block px-3 py-2 rounded-md text-base font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800">Dashboard</Link>
                     <Link href="/bookmarks" className="block px-3 py-2 rounded-md text-base font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800">Bookmarks</Link>
+                    <Link href="/notifications" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700">Notifications</Link>
                     {session.user.role === 'ADMIN' && (
                       <Link href="/admin" className="block px-3 py-2 rounded-md text-base font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800">Admin</Link>
                     )}

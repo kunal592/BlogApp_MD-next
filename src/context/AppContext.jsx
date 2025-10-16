@@ -108,9 +108,52 @@ export function AppProvider({ children }) {
 
   async function markAllNotificationsRead() {}
 
-  async function addReply(commentId, text) {}
+  async function addReply(commentId, text) {
+    try {
+      const res = await api.post(`/comments/${commentId}/replies`, { content: text })
+      setComments(prev =>
+        prev.map(c =>
+          c.id === commentId ? { ...c, replies: [...(c.replies || []), res.data] } : c
+        )
+      )
+    } catch (error) {
+      console.error("Error adding reply:", error)
+    }
+  }
 
-  async function likeComment(commentId) {}
+  async function likeComment(commentId) {
+    try {
+      await api.post(`/comments/${commentId}/like`)
+      setComments(prev =>
+        prev.map(c =>
+          c.id === commentId ? { ...c, likes: (c.likes || 0) + 1 } : c
+        )
+      )
+    } catch (error) {
+      console.error("Error liking comment:", error)
+    }
+  }
+
+  async function reportComment(commentId) {
+    try {
+      await api.post(`/comments/${commentId}/report`)
+      setComments(prev =>
+        prev.map(c => (c.id === commentId ? { ...c, isReported: true } : c))
+      )
+    } catch (error) {
+      console.error('Error reporting comment:', error)
+    }
+  }
+
+  async function deleteComment(commentId) {
+    try {
+      await api.delete(`/comments/${commentId}`)
+      setComments(prev => prev.filter(c => c.id !== commentId))
+    } catch (error) {
+      console.error('Error deleting comment:', error)
+    }
+  }
+
 
   async function deleteBlog(blogId) {
     try {
@@ -172,7 +215,8 @@ export function AppProvider({ children }) {
     blogs, users, comments, notifications, bookmarks, following, loading, currentUser, viewMode,
     fetchComments, toggleLike, toggleBookmark, addComment, toggleFollow, 
     markAllNotificationsRead, addReply, likeComment, deleteBlog, publishBlog,
-    updateUserProfile, updateBlog, setBlogs, signup, login, logout, addBlog, toggleView
+    updateUserProfile, updateBlog, setBlogs, signup, login, logout, addBlog, toggleView,
+    reportComment, deleteComment
   }), [blogs, users, comments, notifications, bookmarks, following, loading, currentUser, viewMode])
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

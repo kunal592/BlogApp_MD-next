@@ -25,7 +25,11 @@ export default async function BlogDetailPage({ params }) {
   const blog = await prisma.blog.findUnique({
     where: { id: params.id },
     include: {
-      author: true,
+      author: {
+        include: {
+          followers: true,
+        },
+      },
       likes: true,
       bookmarks: true,
     },
@@ -39,6 +43,7 @@ export default async function BlogDetailPage({ params }) {
   const isBookmarked = session ? blog.bookmarks.some(bookmark => bookmark.userId === session.user.id) : false;
 
   const readingTime = calculateReadingTime(blog.content);
+  const blogUrl = `http://localhost:3000/blog/${blog.id}`;
 
   return (
     <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -61,7 +66,7 @@ export default async function BlogDetailPage({ params }) {
         <div className="flex flex-wrap gap-4">
           <LikeButton blogId={blog.id} initialLikes={blog.likes.length} isLiked={isLiked} />
           <BookmarkButton blogId={blog.id} isBookmarked={isBookmarked} />
-          <ShareMenu blogTitle={blog.title} blogUrl={`/blog/${blog.id}`} />
+          <ShareMenu blogTitle={blog.title} blogUrl={blogUrl} />
         </div>
       </div>
 
@@ -76,7 +81,7 @@ export default async function BlogDetailPage({ params }) {
                 <div className="text-sm text-gray-500 dark:text-gray-400">{blog.author.bio}</div>
               </div>
             </div>
-          {session && session.user.id !== blog.author.id && <FollowButton userId={blog.author.id} isFollowing={!!blog.author.followers.find(f => f.followerId === session.user.id)} />} 
+          {session && session.user.id !== blog.author.id && <FollowButton userId={blog.author.id} isFollowing={!!(blog.author.followers && blog.author.followers.find(f => f.followerId === session.user.id))} />} 
         </div>
       </div>
 

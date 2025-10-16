@@ -26,6 +26,7 @@ model User {
   coverImage    String?
   bio           String?   @db.Text
   role          Role      @default(USER)
+  socialLink    String?   
   accounts      Account[]
   sessions      Session[]
   blogs         Blog[]
@@ -171,14 +172,4 @@ model ContactMessage {
   email     String
   message   String   @db.Text
   createdAt DateTime @default(now())
-}
-
-model TeamMember {
-  id        String   @id @default(cuid())
-  name      String
-  role      String
-  bio       String   @db.Text
-  avatar    String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }

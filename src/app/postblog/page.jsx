@@ -1,6 +1,5 @@
-
 'use client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { useApp } from '../../context/AppContext'
@@ -9,6 +8,7 @@ import { Sparkles, Tags, Eye, Code, Save, Send, Image as ImageIcon } from 'lucid
 import { api } from '@/lib/axios'
 import CodeBlock from '@/components/CodeBlock'
 import toast from 'react-hot-toast'
+import { useSearchParams } from 'next/navigation'
 
 export default function PostBlogPage() {
   const [title, setTitle] = useState('')
@@ -17,20 +17,52 @@ export default function PostBlogPage() {
   const [showSEOResult, setShowSEOResult] = useState(false)
   const [seoData, setSeoData] = useState(null)
   const [isSaving, setIsSaving] = useState(false)
-  const { addBlog } = useApp()
+  const [blogId, setBlogId] = useState(null)
+  const { addBlog, updateBlog } = useApp()
   const fileInputRef = useRef(null)
   const contentRef = useRef(null)
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const editId = searchParams.get('edit')
+    if (editId) {
+      setBlogId(editId)
+      fetchBlog(editId)
+    }
+  }, [searchParams])
+
+  const fetchBlog = async (id) => {
+    try {
+      const res = await api.get(`/blogs/${id}`)
+      const blog = res.data
+      setTitle(blog.title)
+      setContent(blog.content)
+      setTags(blog.tags.join(', '))
+    } catch (error) {
+      toast.error('Failed to fetch blog post.')
+    }
+  }
 
   const handlePublish = async () => {
-    const notification = toast.loading('Publishing your post...')
+    const notification = toast.loading(blogId ? 'Updating your post...' : 'Publishing your post...')
     try {
-      await addBlog({ title, content, tags: tags.split(',').map(t => t.trim()), status: 'published' })
-      toast.success('Your post has been published!', { id: notification })
-      setTitle('')
-      setContent('')
-      setTags('')
+      const blogData = { title, content, tags: tags.split(',').map(t => t.trim()), status: 'published' }
+      if (blogId) {
+        await updateBlog(blogId, blogData)
+        const audio = new Audio('https://www.soundjay.com/buttons/sounds/button-16.mp3');
+        audio.play();
+        toast.success('Your post has been updated!', { id: notification })
+      } else {
+        await addBlog(blogData)
+        toast.success('Your post has been published!', { id: notification })
+      }
+      if (!blogId) {
+        setTitle('')
+        setContent('')
+        setTags('')
+      }
     } catch (error) {
-      toast.error('Failed to publish your post.', { id: notification })
+      toast.error(blogId ? 'Failed to update your post.' : 'Failed to publish your post.', { id: notification })
     }
   }
 
@@ -38,8 +70,16 @@ export default function PostBlogPage() {
     setIsSaving(true)
     const notification = toast.loading('Saving your draft...')
     try {
-      await addBlog({ title, content, tags: tags.split(',').map(t => t.trim()), status: 'draft' })
-      toast.success('Your draft has been saved!', { id: notification })
+      const blogData = { title, content, tags: tags.split(',').map(t => t.trim()), status: 'draft' }
+      if (blogId) {
+        await updateBlog(blogId, blogData)
+        const audio = new Audio('https://www.soundjay.com/buttons/sounds/button-16.mp3');
+        audio.play();
+        toast.success('Your draft has been updated!', { id: notification })
+      } else {
+        await addBlog(blogData)
+        toast.success('Your draft has been saved!', { id: notification })
+      }
     } catch (error) {
       toast.error('Failed to save your draft.', { id: notification })
     } finally {
@@ -80,7 +120,6 @@ export default function PostBlogPage() {
       const imageUrl = res.data.url;
       const markdownImage = `![${file.name}](${imageUrl})\n`;
       
-      // Insert the markdown image at the current cursor position in the textarea
       const textarea = contentRef.current;
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
@@ -97,7 +136,7 @@ export default function PostBlogPage() {
     <div className="min-h-screen bg-neutral-900 text-white">
       <header className="bg-neutral-950/50 backdrop-blur-sm shadow-lg sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-purple-400 to-indigo-500 text-transparent bg-clip-text">Create New Post</h1>
+          <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-purple-400 to-indigo-500 text-transparent bg-clip-text">{blogId ? 'Edit Post' : 'Create New Post'}</h1>
           <div className="flex items-center gap-4">
             <button onClick={() => fileInputRef.current.click()} className="btn-secondary text-sm flex items-center gap-2">
               <ImageIcon className="w-4 h-4" />
@@ -110,7 +149,7 @@ export default function PostBlogPage() {
             </button>
             <button onClick={handlePublish} className="btn-primary text-sm bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 transition-all flex items-center gap-2">
               <Send className="w-4 h-4" />
-              Publish
+              {blogId ? 'Update' : 'Publish'}
             </button>
           </div>
         </div>

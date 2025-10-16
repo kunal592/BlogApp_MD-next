@@ -1,14 +1,17 @@
+
 'use client'
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
-import { ThumbsUp, MessageSquare } from 'lucide-react'
+import { ThumbsUp, MessageSquare, Flag, Trash2 } from 'lucide-react'
 
 const Comment = ({ comment }) => {
-  const { users, addReply, likeComment, currentUser } = useApp()
+  const { users, addReply, likeComment, reportComment, deleteComment, currentUser } = useApp()
   const [showReplyForm, setShowReplyForm] = useState(false)
   const [replyText, setReplyText] = useState('')
+  const [isLiked, setIsLiked] = useState(false)
 
   const author = users.find(u => u.id === comment.authorId) || { name: 'Unknown' }
+  const blogAuthorId = (useApp().blogs.find(b => b.id === comment.blogId) || {}).authorId
 
   const handleReplySubmit = (e) => {
     e.preventDefault()
@@ -16,6 +19,11 @@ const Comment = ({ comment }) => {
     addReply(comment.id, replyText)
     setReplyText('')
     setShowReplyForm(false)
+  }
+
+  const handleLike = () => {
+    likeComment(comment.id)
+    setIsLiked(true)
   }
 
   return (
@@ -28,12 +36,22 @@ const Comment = ({ comment }) => {
               <p className="font-semibold text-gray-800 dark:text-gray-200">{author.name}</p>
               <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(comment.createdAt).toLocaleString()}</p>
             </div>
+            {currentUser && currentUser.id === blogAuthorId && comment.isReported && (
+              <button
+                onClick={() => deleteComment(comment.id)}
+                className="flex items-center space-x-1 text-red-500 hover:text-red-700 transition-colors duration-200"
+              >
+                <Trash2 size={16} />
+                <span>Delete</span>
+              </button>
+            )}
           </div>
           <p className="mt-2 text-gray-700 dark:text-gray-300">{comment.content}</p>
           <div className="mt-3 flex items-center space-x-4">
             <button
-              onClick={() => likeComment(comment.id)}
-              className="flex items-center space-x-1 text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-200"
+              onClick={handleLike}
+              disabled={isLiked}
+              className={`flex items-center space-x-1 text-gray-500 dark:text-gray-400 ${isLiked ? 'text-indigo-600 dark:text-indigo-400' : 'hover:text-indigo-600 dark:hover:text-indigo-400'} transition-colors duration-200`}
             >
               <ThumbsUp size={16} />
               <span>{comment.likes || 0}</span>
@@ -45,6 +63,15 @@ const Comment = ({ comment }) => {
               <MessageSquare size={16} />
               <span>Reply</span>
             </button>
+            {currentUser && (
+              <button
+                onClick={() => reportComment(comment.id)}
+                className="flex items-center space-x-1 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors duration-200"
+              >
+                <Flag size={16} />
+                <span>Report</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

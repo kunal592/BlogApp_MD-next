@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import toast, { Toaster } from 'react-hot-toast'
 import { Mail, Phone, MapPin, Send, Loader } from 'lucide-react'
+import { api } from '@/lib/axios'
 
 export default function ContactPage() {
   const [name, setName] = useState('')
@@ -9,16 +10,18 @@ export default function ContactPage() {
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e?.preventDefault()
     if (loading) return
     setLoading(true)
-    // simulate send
-    setTimeout(() => {
-      setLoading(false)
+    try {
+      await api.post('/contact', { name, email, message });
       toast.success('Message sent successfully! We will get back to you soon.')
       setName(''); setEmail(''); setMessage('')
-    }, 1200)
+    } catch (error) {
+      toast.error('Something went wrong. Please try again.')
+    }
+    setLoading(false)
   }
 
   return (

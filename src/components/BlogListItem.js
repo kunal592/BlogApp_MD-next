@@ -1,0 +1,31 @@
+
+'use client'
+import Link from 'next/link'
+import { motion } from 'framer-motion'
+
+const BlogListItem = ({ blog }) => {
+    return (
+        <Link href={`/blogs/${blog.id}`}>
+            <motion.div 
+                className="bg-white dark:bg-neutral-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                whileHover={{ scale: 1.02, transition: { duration: 0.3 } }}
+            >
+                <div className="p-6 flex items-center">
+                    <div className="w-2/3">
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{blog.title}</h2>
+                        <p className="text-gray-600 dark:text-gray-400 mb-4">{blog.description}</p>
+                    </div>
+                    <div className="w-1/3 flex justify-end items-center">
+                        <img src={blog.author.image} alt={blog.author.name} className="w-10 h-10 rounded-full mr-4" />
+                        <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">{blog.author.name}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{new Date(blog.createdAt).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                </div>
+            </motion.div>
+        </Link>
+    )
+}
+
+export default BlogListItem

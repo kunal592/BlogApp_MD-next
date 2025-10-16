@@ -33,6 +33,7 @@ export default function EditBlogPage({ params }) {
     e.preventDefault()
     const notification = toast.loading('Updating your post...')
     try {
+      const tagsArray = tags.split(',').map(t => t.trim()).filter(t => t !== '');
       const res = await fetch(`/api/blogs/${params.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -41,7 +42,7 @@ export default function EditBlogPage({ params }) {
           content,
           excerpt,
           image,
-          tags: tags.split(',').map(t => t.trim()),
+          tags: tagsArray,
         }),
       })
       if (res.ok) {

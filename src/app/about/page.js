@@ -3,25 +3,33 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { api } from '@/lib/axios'
 import { Users, Target, Zap, Heart } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export default function AboutPage() {
   const [team, setTeam] = useState([])
+  const router = useRouter()
 
   useEffect(() => {
     const fetchTeam = async () => {
-        const res = await api.get('/team');
+        const res = await api.get('/api/users');
         setTeam(res.data)
     }
     fetchTeam()
   }, [])
 
+  const handleCardClick = (link) => {
+    if (link) {
+      router.push(link)
+    }
+  }
+
   const FeatureCard = ({ icon, title, children }) => (
-    <div className="bg-neutral-900/50 p-6 rounded-2xl border border-neutral-800 backdrop-blur-sm">
+    <div className="bg-gray-100 dark:bg-neutral-900/50 p-6 rounded-2xl border border-gray-200 dark:border-neutral-800 backdrop-blur-sm">
       <div className="flex items-center gap-4 mb-3">
         {icon}
-        <h3 className="text-xl font-bold text-white">{title}</h3>
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h3>
       </div>
-      <p className="text-neutral-400 leading-relaxed">{children}</p>
+      <p className="text-gray-600 dark:text-neutral-400 leading-relaxed">{children}</p>
     </div>
   );
 
@@ -41,7 +49,7 @@ export default function AboutPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.1 }}
-                    className="text-lg text-neutral-400 max-w-2xl mx-auto"
+                    className="text-lg text-gray-500 dark:text-neutral-400 max-w-2xl mx-auto"
                 >
                     Empowering developers to share knowledge and build vibrant communities through exceptional tools.
                 </motion.p>
@@ -58,13 +66,13 @@ export default function AboutPage() {
 
             <div className="text-center mb-24">
                 <h2 className="text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-500 mb-4 inline-block">Why Developers Love DevDoc’s</h2>
-                <p className="text-neutral-400 max-w-3xl mx-auto leading-relaxed">
+                <p className="text-gray-500 dark:text-neutral-400 max-w-3xl mx-auto leading-relaxed">
                     DevDoc's is built by developers, for developers. We understand the importance of a clean, efficient, and powerful platform for sharing technical knowledge. Our platform is designed to get out of your way and let you focus on what you do best: writing great content.
                 </p>
             </div>
             
             <section className="text-center">
-                <h2 className="text-4xl font-bold tracking-tight text-white sm:text-5xl mb-12">Meet Our Team</h2>
+                <h2 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl mb-12">Meet Our Team</h2>
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -76,13 +84,14 @@ export default function AboutPage() {
                             key={member.id}
                             whileHover={{ scale: 1.05, y: -5 }}
                             transition={{ type: "spring", stiffness: 300 }}
-                            className="relative overflow-hidden rounded-2xl bg-neutral-900/60 p-6 text-center border-2 border-neutral-800 backdrop-blur-lg shadow-xl"
+                            className="relative overflow-hidden rounded-2xl bg-gray-100 dark:bg-neutral-900/60 p-6 text-center border-2 border-gray-200 dark:border-neutral-800 backdrop-blur-lg shadow-xl cursor-pointer"
+                            onClick={() => handleCardClick(member.socialLink)}
                         >
                             <div className="absolute top-0 left-0 -w-1/2 -h-1/2 bg-gradient-to-br from-purple-600/20 to-transparent blur-3xl"></div>
                             <div className="absolute bottom-0 right-0 -w-1/2 -h-1/2 bg-gradient-to-tl from-indigo-600/20 to-transparent blur-3xl"></div>
-                            <img src={member.avatar || 'https://i.pravatar.cc/150'} alt={member.name} className="w-28 h-28 rounded-full mx-auto mb-4 border-4 border-neutral-700" />
-                            <h3 className="text-xl font-semibold text-white">{member.name}</h3>
-                            <p className="text-sm text-indigo-300 font-medium">{member.role}</p>
+                            <img src={member.image || 'https://i.pravatar.cc/150'} alt={member.name} className="w-28 h-28 rounded-full mx-auto mb-4 border-4 border-gray-200 dark:border-neutral-700" />
+                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{member.name}</h3>
+                            <p className="text-sm text-indigo-500 dark:text-indigo-300 font-medium">{member.role}</p>
                         </motion.div>
                     ))}
                 </motion.div>

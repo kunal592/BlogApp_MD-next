@@ -25,6 +25,16 @@ export async function POST(request, { params }) {
           id: existingFollow.id,
         },
       })
+
+      // Remove the corresponding notification
+      await prisma.notification.deleteMany({
+        where: {
+          type: 'FOLLOW',
+          actorId: followerId,
+          entityId: followeeId,
+        },
+      })
+
       return new NextResponse(null, { status: 204 })
     } else {
       const newFollow = await prisma.follow.create({
@@ -33,6 +43,20 @@ export async function POST(request, { params }) {
           followeeId,
         },
       })
+
+      const follower = await prisma.user.findUnique({ where: { id: followerId } });
+
+      // Create a notification for the user being followed
+      await prisma.notification.create({
+        data: {
+          userId: followeeId,
+          type: 'FOLLOW',
+          actorId: followerId,
+          entityId: followeeId,
+          message: `${follower.name} started following you.`,
+        },
+      })
+
       return new NextResponse(JSON.stringify(newFollow), { status: 201 })
     }
   } catch (error) {
