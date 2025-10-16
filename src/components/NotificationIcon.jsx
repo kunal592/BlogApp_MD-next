@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { Bell } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
-const NotificationIcon = () => {
+const NotificationIcon = ({className}) => {
     const { data: session } = useSession()
     const [unreadCount, setUnreadCount] = useState(0)
 
@@ -31,7 +32,7 @@ const NotificationIcon = () => {
     }, [session])
 
     return (
-        <Link href="/notifications" className="relative mr-4">
+        <Link href="/notifications" className={cn("relative mr-4", className)}>
             <Bell className="text-gray-600 dark:text-gray-300" />
             {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">

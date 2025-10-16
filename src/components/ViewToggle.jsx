@@ -1,31 +1,36 @@
 
-'use client';
-import { LayoutGrid, List } from 'lucide-react';
-import { motion } from 'framer-motion';
+'use client'
+import { motion } from 'framer-motion'
+import { FaTh, FaList } from 'react-icons/fa'
+import { cn } from '@/lib/utils'
 
-const ViewToggle = ({ viewMode, setViewMode }) => {
-  return (
-    <div className="relative flex items-center bg-gray-200 dark:bg-neutral-800 rounded-full p-1">
-      <motion.div
-        className="absolute h-8 w-8 bg-indigo-600 rounded-full"
-        layout
-        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        style={{ left: viewMode === 'grid' ? '0.25rem' : 'calc(100% - 2.25rem)' }}
-      />
-      <button
-        onClick={() => setViewMode('grid')}
-        className="relative z-10 p-2 rounded-full"
-      >
-        <LayoutGrid size={20} className={viewMode === 'grid' ? 'text-white' : 'text-gray-700 dark:text-gray-300'} />
-      </button>
-      <button
-        onClick={() => setViewMode('list')}
-        className="relative z-10 p-2 rounded-full"
-      >
-        <List size={20} className={viewMode === 'list' ? 'text-white' : 'text-gray-700 dark:text-gray-300'} />
-      </button>
-    </div>
-  );
-};
+const ViewToggle = ({ layout, setLayout }) => {
+    return (
+        <div className="flex items-center gap-2">
+            <motion.button
+                onClick={() => setLayout('grid')}
+                className={cn(
+                    "p-2 rounded-md transition-colors",
+                    layout === 'grid' ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-neutral-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-neutral-600'
+                )}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+            >
+                <FaTh />
+            </motion.button>
+            <motion.button
+                onClick={() => setLayout('list')}
+                className={cn(
+                    "p-2 rounded-md transition-colors",
+                    layout === 'list' ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-neutral-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-neutral-600'
+                )}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+            >
+                <FaList />
+            </motion.button>
+        </div>
+    )
+}
 
-export default ViewToggle;
+export default ViewToggle

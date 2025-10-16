@@ -1,61 +1,30 @@
 
 'use client'
 import Link from 'next/link'
-import { useSession } from 'next-auth/react'
-import toast from 'react-hot-toast'
-import { useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
+import { cn } from '@/lib/utils'
 
-export default function BlogCard({ blog }) {
-  const { data: session } = useSession()
-  const router = useRouter()
-
-  const handleDelete = async (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-
-    if (window.confirm('Are you sure you want to delete this blog post?')) {
-      const notification = toast.loading('Deleting blog post...')
-      try {
-        const res = await fetch(`/api/blogs/${blog.id}`, { method: 'DELETE' })
-        if (res.ok) {
-          toast.success('Blog post deleted', { id: notification })
-          router.refresh()
-        } else {
-          throw new Error('Failed to delete blog post')
-        }
-      } catch (error) {
-        toast.error(error.message, { id: notification })
-      }
-    }
-  }
-
-  const isAuthor = session?.user?.id === blog.authorId
-
-  return (
-    <div className="bg-gray-100 dark:bg-neutral-800 shadow-lg rounded-lg overflow-hidden transition-transform hover:scale-[1.02] hover:shadow-indigo-500/30 flex flex-col md:flex-row">
-      <img className="w-full md:w-1/3 h-48 object-cover" src={blog.image} alt={blog.title} />
-      <div className="p-6 flex flex-col justify-between w-full">
-        <div>
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 truncate">{blog.title}</h3>
-          <p className="text-gray-600 dark:text-gray-300 mb-4 h-12 overflow-hidden text-ellipsis">{blog.excerpt}</p>
-          <div className="flex items-center mb-4">
-            <img className="w-10 h-10 rounded-full mr-4" src={blog.author.image} alt={blog.author.name} />
-            <div>
-              <p className="text-gray-900 dark:text-white font-semibold">{blog.author.name}</p>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">{new Date(blog.createdAt).toLocaleDateString()}</p>
-            </div>
-          </div>
-        </div>
-        <div className="flex justify-end items-center gap-4 mt-4">
-          {isAuthor && (
-            <>
-              <Link href={`/edit/${blog.id}`} className="btn-xs btn-outline">Edit</Link>
-              <button onClick={handleDelete} className="btn-xs btn-outline text-red-500">Delete</button>
-            </>
-          )}
-          <Link href={`/blog/${blog.id}`} className="btn-xs btn-outline text-indigo-600 dark:text-indigo-400">Read More &rarr;</Link>
-        </div>
-      </div>
-    </div>
-  )
+const BlogCard = ({ blog, className }) => {
+    return (
+        <Link href={`/blogs/${blog.id}`}>
+            <motion.div 
+                className={cn("bg-white dark:bg-neutral-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300", className)}
+                whileHover={{ scale: 1.05, transition: { duration: 0.3 } }}
+            >
+                <div className="p-6">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{blog.title}</h2>
+                    <p className="text-gray-600 dark:text-gray-400 mb-4">{blog.description}</p>
+                    <div className="flex items-center">
+                        <img src={blog.author.image} alt={blog.author.name} className="w-10 h-10 rounded-full mr-4" />
+                        <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">{blog.author.name}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{new Date(blog.createdAt).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                </div>
+            </motion.div>
+        </Link>
+    )
 }
+
+export default BlogCard

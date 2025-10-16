@@ -1,41 +1,35 @@
-'use client'
-import Link from 'next/link'
-import Image from 'next/image'
 
-const BlogListItem = ({ blog }) => {
+'use client';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
+
+const BlogListItem = ({ blog, className }) => {
   return (
-    <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 ease-in-out flex">
-      <div className="w-1/3 md:w-1/4 relative">
-        <Link href={`/blog/${blog.id}`}>
-          <Image
-            src={blog.image}
-            alt={blog.title}
-            layout="fill"
-            className="object-cover"
-          />
-        </Link>
-      </div>
-      <div className="w-2/3 md:w-3/4 p-6">
-        <p className="text-sm text-gray-500 dark:text-gray-400">{new Date(blog.createdAt).toLocaleDateString()}</p>
-        <Link href={`/blog/${blog.id}`}>
-          <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mt-2 hover:text-indigo-600 transition-colors duration-300">{blog.title}</h2>
-        </Link>
-        <p className="mt-4 text-gray-600 dark:text-gray-300 hidden md:block">{blog.excerpt}</p>
-        <div className="mt-4 flex items-center">
-          <Image
-            src={blog.authorAvatar}
-            alt={blog.author}
-            width={40}
-            height={40}
-            className="rounded-full"
-          />
-          <div className="ml-4">
-            <p className="font-semibold text-gray-800 dark:text-gray-200">{blog.author}</p>
+    <Link href={`/blogs/${blog.id}`} className="block w-full">
+      <motion.div
+        className={cn(
+          "bg-white dark:bg-neutral-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 w-full",
+          className
+        )}
+        whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}
+      >
+        <div className="p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="flex-1">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{blog.title}</h2>
+            <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">{blog.description}</p>
+          </div>
+          <div className="flex items-center shrink-0 mt-4 sm:mt-0">
+            <img src={blog.author.image} alt={blog.author.name} className="w-8 h-8 rounded-full mr-3" />
+            <div className='text-left sm:text-right'>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">{blog.author.name}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(blog.createdAt).toLocaleDateString()}</p>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-  )
-}
+      </motion.div>
+    </Link>
+  );
+};
 
-export default BlogListItem
+export default BlogListItem;

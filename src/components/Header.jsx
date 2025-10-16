@@ -1,12 +1,14 @@
+
 'use client'
 import Link from 'next/link'
 import { useTheme } from 'next-themes'
-import { Moon, Sun, Menu, Bell } from 'lucide-react'
+import { Moon, Sun, Menu, Bell, User } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useApp } from '../context/AppContext'
-import NotificationIcon from './NotificationIcon' // Import the new component
+import NotificationIcon from './NotificationIcon' 
+import { cn } from '@/lib/utils'
 
-export default function Header() {
+export default function Header({className}) {
   const { theme, setTheme } = useTheme()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { currentUser, logout } = useApp()
@@ -28,7 +30,7 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-white dark:bg-neutral-900 shadow-md sticky top-0 z-50">
+    <header className={cn("bg-white dark:bg-neutral-900 shadow-md sticky top-0 z-50", className)}>
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
@@ -50,7 +52,7 @@ export default function Header() {
             </div>
           </div>
           <div className="flex items-center">
-            {currentUser && <NotificationIcon />} {/* Add notification icon */}
+            {currentUser && <NotificationIcon />}
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               className="p-2 rounded-full text-gray-400 hover:text-gray-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
@@ -99,9 +101,9 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
-            {currentUser && (
+             {currentUser && (
               <div className="border-t border-gray-700 pt-4 mt-4">
-                <div className="flex items-center px-5">
+                 <div className="flex items-center px-5">
                   <div className="flex-shrink-0">
                     <img className="h-10 w-10 rounded-full" src={currentUser.avatar} alt="" />
                   </div>
@@ -109,10 +111,6 @@ export default function Header() {
                     <div className="text-base font-medium leading-none text-white">{currentUser.name}</div>
                     <div className="text-sm font-medium leading-none text-gray-400">{currentUser.email}</div>
                   </div>
-                  <button className="ml-auto bg-gray-800 flex-shrink-0 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
-                    <span className="sr-only">View notifications</span>
-                    <Bell className="h-6 w-6" aria-hidden="true" />
-                  </button>
                 </div>
                 <div className="mt-3 px-2 space-y-1">
                   <a href="/profile" className="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700">Your Profile</a>
