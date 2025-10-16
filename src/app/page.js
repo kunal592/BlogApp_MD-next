@@ -8,10 +8,16 @@ async function getBlogs() {
     include: { author: true },
     orderBy: { createdAt: 'desc' },
   });
-  // In a real app, you might want to handle the case where `blogs` is null or empty.
-  // For now, we'll assume it always returns an array.
-  // The `JSON.parse(JSON.stringify(blogs))` is a workaround to avoid a Next.js serialization issue with dates.
-  return JSON.parse(JSON.stringify(blogs));
+  console.log('Blogs from database:', blogs); // Log the blogs object
+  try {
+    // In a real app, you might want to handle the case where `blogs` is null or empty.
+    // For now, we'll assume it always returns an array.
+    // The `JSON.parse(JSON.stringify(blogs))` is a workaround to avoid a Next.js serialization issue with dates.
+    return JSON.parse(JSON.stringify(blogs));
+  } catch (error) {
+    console.error('Error serializing blogs:', error);
+    return [];
+  }
 }
 
 export default async function HomePage() {

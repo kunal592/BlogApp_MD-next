@@ -10,7 +10,7 @@ import { SessionProvider } from 'next-auth/react'
 export default function RootLayout({ children, session }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="bg-slate-50 dark:bg-neutral-950 text-slate-900 dark:text-white transition-colors bg-[url('/assets/devdocs-bg.svg')] bg-cover bg-fixed bg-center">
+      <body className="bg-slate-50 dark:bg-neutral-950 text-slate-900 dark:text-white transition-colors bg-[url('/devdocs-bg.svg')] bg-cover bg-fixed bg-center">
         <div
             className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
             aria-hidden="true"
