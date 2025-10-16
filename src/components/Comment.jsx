@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
 import { ThumbsUp, MessageSquare, Flag, Trash2 } from 'lucide-react'
+import MarkdownRenderer from './MarkdownRenderer'
+import Image from 'next/image'
 
 const Comment = ({ comment }) => {
   const { users, addReply, likeComment, reportComment, deleteComment, currentUser } = useApp()
@@ -29,7 +31,7 @@ const Comment = ({ comment }) => {
   return (
     <div className="bg-white dark:bg-neutral-900 p-4 rounded-lg shadow-md">
       <div className="flex items-start">
-        <img src={author.avatar} alt={author.name} className="w-10 h-10 rounded-full mr-4" />
+        <Image src={author.image} width={40} height={40} alt={author.name} className="w-10 h-10 rounded-full mr-4" />
         <div className="flex-1">
           <div className="flex items-center justify-between">
             <div>
@@ -46,7 +48,7 @@ const Comment = ({ comment }) => {
               </button>
             )}
           </div>
-          <p className="mt-2 text-gray-700 dark:text-gray-300">{comment.content}</p>
+          <MarkdownRenderer content={comment.content} />
           <div className="mt-3 flex items-center space-x-4">
             <button
               onClick={handleLike}
@@ -109,11 +111,11 @@ const Comment = ({ comment }) => {
             const replyAuthor = users.find(u => u.id === reply.authorId) || { name: 'Unknown' }
             return (
               <div key={reply.id} className="flex items-start">
-                <img src={replyAuthor.avatar} alt={replyAuthor.name} className="w-8 h-8 rounded-full mr-3" />
+                <Image src={replyAuthor.image} width={32} height={32} alt={replyAuthor.name} className="w-8 h-8 rounded-full mr-3" />
                 <div className="flex-1 bg-gray-50 dark:bg-neutral-800 p-3 rounded-lg">
                   <p className="font-semibold text-sm text-gray-800 dark:text-gray-200">{replyAuthor.name}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(reply.createdAt).toLocaleString()}</p>
-                  <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">{reply.content}</p>
+                  <MarkdownRenderer content={reply.content} />
                 </div>
               </div>
             )

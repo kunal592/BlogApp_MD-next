@@ -3,14 +3,14 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import prisma from "@/lib/prisma";
 import NotFound from "@/components/NotFound";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import CommentSection from "@/components/CommentSection";
 import LikeButton from "@/components/LikeButton";
 import FollowButton from "@/components/FollowButton";
 import ShareMenu from "@/components/ShareMenu";
 import BookmarkButton from "@/components/BookmarkButton";
 import AiSummary from "@/components/AiSummary";
+import MarkdownRenderer from "@/components/MarkdownRenderer";
+import Image from "next/image";
 
 function calculateReadingTime(text) {
   const wordsPerMinute = 200;
@@ -58,9 +58,7 @@ export default async function BlogDetailPage({ params }) {
         </div>
       </header>
 
-      <div className="prose dark:prose-invert max-w-none">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{blog.content}</ReactMarkdown>
-      </div>
+      <MarkdownRenderer content={blog.content} />
 
       <div className="flex items-center justify-between my-8">
         <div className="flex flex-wrap gap-4">
@@ -75,7 +73,7 @@ export default async function BlogDetailPage({ params }) {
       <div className="bg-white dark:bg-neutral-900 rounded-lg shadow p-6 mb-8">
         <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <img src={blog.author.avatar} className="w-16 h-16 rounded-full" alt="author" />
+              <Image src={blog.author.image} width={64} height={64} className="w-16 h-16 rounded-full" alt="author" />
               <div>
                 <div className="font-semibold text-lg text-gray-900 dark:text-white">{blog.author.name}</div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">{blog.author.bio}</div>

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useApp } from '../context/AppContext'
 import Comment from './Comment'
+import Image from 'next/image'
 
 export default function CommentSection({ blogId }) {
   const { comments, fetchComments, addComment, currentUser } = useApp()
@@ -29,7 +30,7 @@ export default function CommentSection({ blogId }) {
 
       <div className="bg-white dark:bg-neutral-800 shadow-md rounded-lg p-6 mb-8">
         <div className="flex items-start">
-            <img src={currentUser?.avatar} alt={currentUser?.name} className="w-10 h-10 rounded-full mr-4" />
+            <Image src={currentUser?.image} width={40} height={40} alt={currentUser?.name} className="w-10 h-10 rounded-full mr-4" />
             <div className="flex-1">
                 <textarea
                 placeholder="Write a comment..."
