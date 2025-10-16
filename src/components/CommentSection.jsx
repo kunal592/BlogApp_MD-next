@@ -1,60 +1,54 @@
+
 'use client'
-import { useState, useEffect } from 'react'
-import { useApp } from '../context/AppContext'
-import Comment from './Comment'
-import Image from 'next/image'
+
+import { useState } from 'react';
+import { useApp } from '../context/AppContext';
+import Comment from './Comment';
+import { Send } from 'lucide-react';
 
 export default function CommentSection({ blogId }) {
-  const { comments, fetchComments, addComment, currentUser } = useApp()
-  const [text, setText] = useState('')
-  const [loading, setLoading] = useState(false)
+    const { comments, addComment, currentUser } = useApp();
+    const [newComment, setNewComment] = useState('');
 
-  useEffect(() => {
-    fetchComments(blogId)
-  }, [blogId, fetchComments])
+    const blogComments = comments.filter(c => c.blogId === blogId);
 
-  function handlePost() {
-    if (!text.trim() || loading) return
-    setLoading(true)
-    addComment(blogId, text.trim())
-    setTimeout(() => {
-        setText('')
-        setLoading(false)
-    }, 500)
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!newComment.trim() || !currentUser) return;
+        addComment(blogId, newComment);
+        setNewComment('');
+    };
 
-  }
+    return (
+        <div className="mt-12">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Comments ({blogComments.length})</h2>
+            
+            {currentUser && (
+                <form onSubmit={handleSubmit} className="mb-8">
+                    <div className="relative">
+                        <textarea
+                            value={newComment}
+                            onChange={(e) => setNewComment(e.target.value)}
+                            className="w-full p-4 pr-16 rounded-lg bg-gray-100 dark:bg-neutral-800 border-transparent focus:border-indigo-500 focus:bg-white dark:focus:bg-neutral-700 focus:ring-0 transition-all duration-200"
+                            placeholder="Write a comment..."
+                            rows="3"
+                        />
+                        <button
+                            type="submit"
+                            className="absolute top-1/2 right-4 -translate-y-1/2 p-2 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-indigo-400 transition-colors duration-200"
+                            disabled={!newComment.trim()}
+                        >
+                            <Send size={20} />
+                        </button>
+                    </div>
+                </form>
+            )}
 
-  return (
-    <section className="mt-12">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Comments ({comments.length})</h2>
-
-      <div className="bg-white dark:bg-neutral-800 shadow-md rounded-lg p-6 mb-8">
-        <div className="flex items-start">
-            <Image src={currentUser?.image} width={40} height={40} alt={currentUser?.name} className="w-10 h-10 rounded-full mr-4" />
-            <div className="flex-1">
-                <textarea
-                placeholder="Write a comment..."
-                className="w-full p-3 rounded-md bg-gray-50 dark:bg-neutral-700 border-transparent focus:border-indigo-500 focus:bg-white dark:focus:bg-neutral-600 focus:ring-0 transition"
-                value={text}
-                onChange={e => setText(e.target.value)}
-                rows="3"
-                />
-                <div className="flex justify-end mt-3">
-                <button 
-                    className="px-6 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400 dark:focus:ring-offset-neutral-900"
-                    onClick={handlePost} 
-                    disabled={loading || !text.trim() || !currentUser}
-                >
-                    {loading ? 'Posting...' : 'Post Comment'}
-                </button>
-                </div>
+            <div className="space-y-6">
+                {blogComments.map(comment => (
+                    <Comment key={comment.id} comment={comment} />
+                ))}
             </div>
         </div>
-      </div>
-
-      <div className="mt-8 space-y-6">
-        {comments.map(c => <Comment key={c.id} comment={c} />)}
-      </div>
-    </section>
-  )
+    );
 }
