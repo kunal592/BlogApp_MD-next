@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import React from "react";
 import ReactMarkdown from "react-markdown";
+import { Heart, Share2, MessageSquare, Bookmark } from "lucide-react";
+import { Toaster, toast } from "sonner";
 
 export default async function BlogPage({ params }) {
   const blog = await getBlog(params.id);
@@ -12,8 +14,13 @@ export default async function BlogPage({ params }) {
     notFound();
   }
 
+  const handleLike = () => toast.success("You liked this blog!");
+  const handleShare = () => toast.info("Blog link copied to clipboard!");
+  const handleBookmark = () => toast.success("Blog saved to your bookmarks!");
+
   return (
     <div className="container mx-auto px-4 py-8">
+      <Toaster richColors />
       <div className="max-w-4xl mx-auto">
         <h1 className="text-4xl font-bold mb-4">{blog.title}</h1>
         <div className="flex items-center mb-4">
@@ -49,6 +56,30 @@ export default async function BlogPage({ params }) {
         )}
         <div className="prose dark:prose-invert max-w-none">
           <ReactMarkdown>{blog.content}</ReactMarkdown>
+        </div>
+        <div className="flex items-center justify-between mt-8 border-t border-gray-200 dark:border-gray-700 pt-4">
+          <div className="flex items-center gap-4">
+            <button onClick={handleLike} className="flex items-center gap-1 text-gray-500 hover:text-red-500">
+              <Heart size={20} />
+              <span>Like</span>
+            </button>
+            <button onClick={handleShare} className="flex items-center gap-1 text-gray-500 hover:text-indigo-500">
+              <Share2 size={20} />
+              <span>Share</span>
+            </button>
+            <button className="flex items-center gap-1 text-gray-500 hover:text-blue-500">
+              <MessageSquare size={20} />
+              <span>Comment</span>
+            </button>
+          </div>
+          <button onClick={handleBookmark} className="flex items-center gap-1 text-gray-500 hover:text-yellow-500">
+            <Bookmark size={20} />
+            <span>Bookmark</span>
+          </button>
+        </div>
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold mb-4">Comments</h2>
+          {/* Comment form and list will go here */}
         </div>
       </div>
     </div>
