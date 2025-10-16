@@ -2,17 +2,22 @@
 'use client'
 import { useApp } from '../context/AppContext'
 import Link from 'next/link'
+import toast from 'react-hot-toast'
 
 export default function BlogTable({ blogs }) {
   const { deleteBlog, publishBlog } = useApp()
 
   const handleDelete = async (id) => {
+    const confirmDelete = confirm("Delete this blog permanently?");
+    if (!confirmDelete) return;
     try {
       await deleteBlog(id);
+      toast.success("Blog deleted.")
       const audio = new Audio('https://www.soundjay.com/buttons/sounds/button-10.mp3');
       audio.play();
     } catch (error) {
       console.error("Failed to delete blog:", error);
+      toast.error("Failed to delete blog.")
     }
   };
 
@@ -50,7 +55,7 @@ export default function BlogTable({ blogs }) {
                 {new Date(blog.createdAt).toLocaleDateString()}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <Link href={`/postblog?edit=${blog.id}`} className="text-indigo-600 hover:text-indigo-900">Edit</Link>
+                <Link href={`/edit/${blog.id}`} className="text-indigo-600 hover:text-indigo-900">Edit</Link>
                 <button onClick={() => handleDelete(blog.id)} className="text-red-600 hover:text-red-900 ml-4">Delete</button>
                 {blog.status === 'draft' && (
                   <button onClick={() => publishBlog(blog.id)} className="text-green-600 hover:text-green-900 ml-4">Publish</button>

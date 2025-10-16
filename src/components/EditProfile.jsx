@@ -22,8 +22,7 @@ export default function EditProfile({ user, onClose }) {
       })
       if (res.ok) {
         toast.success('Profile updated successfully!', { id: notification })
-        window.location.reload()
-        onClose()
+        router.refresh()
       } else {
         throw new Error('Failed to update profile.')
       }

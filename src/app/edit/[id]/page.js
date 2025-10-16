@@ -27,7 +27,7 @@ export default function EditBlogPage({ params }) {
       setImage(blog.image || '')
       setTags(blog.tags ? blog.tags.join(', ') : '')
     }
-  }, [blog])
+  }, [blog, params.id])
 
   const handleUpdate = async (e) => {
     e.preventDefault()
