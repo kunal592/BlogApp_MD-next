@@ -1,7 +1,7 @@
 
 'use client'
 import { motion } from 'framer-motion'
-import { FaTh, FaList } from 'react-icons/fa'
+import { LayoutGrid, List } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const ViewToggle = ({ layout, setLayout }) => {
@@ -16,7 +16,7 @@ const ViewToggle = ({ layout, setLayout }) => {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
             >
-                <FaTh />
+                <LayoutGrid />
             </motion.button>
             <motion.button
                 onClick={() => setLayout('list')}
@@ -27,7 +27,7 @@ const ViewToggle = ({ layout, setLayout }) => {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
             >
-                <FaList />
+                <List />
             </motion.button>
         </div>
     )
