@@ -7,7 +7,6 @@ import BlogListItem from './BlogListItem'
 import Sidebar from './Sidebar'
 import { cn } from '@/lib/utils'
 import ViewToggle from './ViewToggle'
-import {-next-line}
 const BlogContainer = ({ blogs }) => {
     const [layout, setLayout] = useState('grid')
     const [selectedTag, setSelectedTag] = useState(null)
